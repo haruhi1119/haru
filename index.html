@@ -18,35 +18,39 @@ header{
   background:white;
   padding:40px 20px;
   text-align:center;
+  position:sticky;
+  top:0;
+  z-index:10;
+  border-bottom:1px solid #ddd;
 }
 
 h1{
-  font-size:64px;
-  letter-spacing:12px;
+  font-size:56px;
+  letter-spacing:10px;
   margin:0 0 20px;
 }
 
-input{
-  width:80%;
-  max-width:400px;
+.search{
+  width:100%;
+  max-width:420px;
   padding:14px;
-  font-size:16px;
+  border-radius:12px;
   border:1px solid #ccc;
-  border-radius:10px;
+  font-size:16px;
 }
 
 #products{
   display:grid;
   grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
   gap:24px;
-  padding:40px;
+  padding:30px;
 }
 
 .card{
   background:white;
   border-radius:20px;
   overflow:hidden;
-  box-shadow:0 2px 8px rgba(0,0,0,.08);
+  box-shadow:0 2px 10px rgba(0,0,0,.08);
 }
 
 .card img{
@@ -56,7 +60,7 @@ input{
 }
 
 .card-content{
-  padding:24px;
+  padding:20px;
 }
 
 .brand{
@@ -65,15 +69,15 @@ input{
 }
 
 .name{
-  font-size:32px;
+  font-size:30px;
   font-weight:bold;
   margin-bottom:20px;
 }
 
 .stock{
   color:green;
+  font-size:24px;
   font-weight:bold;
-  font-size:28px;
   margin-bottom:20px;
 }
 
@@ -93,9 +97,12 @@ input{
 <body>
 
 <header>
+
 <h1>COMOLI</h1>
 
 <input
+id="search"
+class="search"
 type="text"
 placeholder="ブランド検索"
 />
@@ -106,52 +113,82 @@ placeholder="ブランド検索"
 
 <script>
 
+let allProducts = []
+
 fetch("products.json")
 .then(res => res.json())
 .then(data => {
 
-const products = document.getElementById("products")
+  allProducts = data
 
-data.forEach(item => {
-
-products.innerHTML += `
-
-<div class="card">
-
-<img src="${item.image}" />
-
-<div class="card-content">
-
-<div class="brand">
-${item.brand}
-</div>
-
-<div class="name">
-${item.name}
-</div>
-
-<div class="stock">
-在庫あり ${item.stock}店舗
-</div>
-
-<a
-class="button"
-href="${item.url}"
-target="_blank"
->
-在庫店舗を見る
-</a>
-
-</div>
-</div>
-
-`
+  renderProducts(data)
 
 })
 
+function renderProducts(items){
+
+  const products = document.getElementById("products")
+
+  products.innerHTML = ""
+
+  items.forEach(item => {
+
+    products.innerHTML += `
+
+    <div class="card">
+
+      <img src="${item.image}" />
+
+      <div class="card-content">
+
+        <div class="brand">
+          ${item.brand}
+        </div>
+
+        <div class="name">
+          ${item.name}
+        </div>
+
+        <div class="stock">
+          在庫あり ${item.stock}店舗
+        </div>
+
+        <a
+          class="button"
+          href="${item.url}"
+          target="_blank"
+        >
+          在庫店舗を見る
+        </a>
+
+      </div>
+
+    </div>
+
+    `
+
+  })
+
+}
+
+document
+.getElementById("search")
+.addEventListener("input", e => {
+
+  const keyword = e.target.value.toLowerCase()
+
+  const filtered = allProducts.filter(item => {
+
+    return (
+      item.brand.toLowerCase().includes(keyword)
+      ||
+      item.name.toLowerCase().includes(keyword)
+    )
+
+  })
+
+  renderProducts(filtered)
+
 })
 
-</script>
-
-</body>
-</html>
+</
