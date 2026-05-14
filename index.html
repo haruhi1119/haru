@@ -1,1 +1,157 @@
-Commit changes
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+<title>COMOLI STOCK</title>
+
+<style>
+
+body{
+  margin:0;
+  font-family:sans-serif;
+  background:#f5f5f5;
+}
+
+header{
+  background:white;
+  padding:40px 20px;
+  text-align:center;
+}
+
+h1{
+  font-size:64px;
+  letter-spacing:12px;
+  margin:0 0 20px;
+}
+
+input{
+  width:80%;
+  max-width:400px;
+  padding:14px;
+  font-size:16px;
+  border:1px solid #ccc;
+  border-radius:10px;
+}
+
+#products{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
+  gap:24px;
+  padding:40px;
+}
+
+.card{
+  background:white;
+  border-radius:20px;
+  overflow:hidden;
+  box-shadow:0 2px 8px rgba(0,0,0,.08);
+}
+
+.card img{
+  width:100%;
+  height:420px;
+  object-fit:cover;
+}
+
+.card-content{
+  padding:24px;
+}
+
+.brand{
+  color:#777;
+  margin-bottom:10px;
+}
+
+.name{
+  font-size:32px;
+  font-weight:bold;
+  margin-bottom:20px;
+}
+
+.stock{
+  color:green;
+  font-weight:bold;
+  font-size:28px;
+  margin-bottom:20px;
+}
+
+.button{
+  display:block;
+  background:black;
+  color:white;
+  text-decoration:none;
+  text-align:center;
+  padding:16px;
+  border-radius:12px;
+}
+
+</style>
+</head>
+
+<body>
+
+<header>
+<h1>COMOLI</h1>
+
+<input
+type="text"
+placeholder="ブランド検索"
+/>
+
+</header>
+
+<div id="products"></div>
+
+<script>
+
+fetch("products.json")
+.then(res => res.json())
+.then(data => {
+
+const products = document.getElementById("products")
+
+data.forEach(item => {
+
+products.innerHTML += `
+
+<div class="card">
+
+<img src="${item.image}" />
+
+<div class="card-content">
+
+<div class="brand">
+${item.brand}
+</div>
+
+<div class="name">
+${item.name}
+</div>
+
+<div class="stock">
+在庫あり ${item.stock}店舗
+</div>
+
+<a
+class="button"
+href="${item.url}"
+target="_blank"
+>
+在庫店舗を見る
+</a>
+
+</div>
+</div>
+
+`
+
+})
+
+})
+
+</script>
+
+</body>
+</html>
