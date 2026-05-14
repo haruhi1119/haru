@@ -1,21 +1,17 @@
 [
   {
     "brand": "COMOLI",
-    "name": "ウール天竺 長袖",
+    "name": "サマーウール長袖Tシャツ",
     "season": "2025SS",
-    "price": "¥46,200",
-    "size": ["1", "2", "3"],
-    "code": "B01-05001",
-    "stock": 2,
+    "price": "¥50,600",
+    "size": ["2", "3"],
+    "code": "VCL-C4411018",
+    "stock": 1,
     "image": "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?q=80&w=1200&auto=format&fit=crop",
     "shops": [
       {
         "name": "COVERCHORD",
-        "url": "https://coverchord.com/"
-      },
-      {
-        "name": "1LDK",
-        "url": "https://onlinestore.1ldkshop.com/"
+        "url": "https://coverchord.com/products/vcl-c4411?variant=44808963522751"
       }
     ]
   },
