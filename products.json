@@ -1,53 +1,54 @@
 [
   {
     "brand": "COMOLI",
-    "name": "COMOLI 在庫検索",
-    "stock": 3,
+    "name": "ウール天竺 長袖",
+    "season": "2025SS",
+    "stock": 2,
     "image": "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?q=80&w=1200&auto=format&fit=crop",
     "shops": [
       {
-        "name": "COMOLI 公式 Stockists",
-        "url": "https://www.comoli.jp/stockists"
+        "name": "COVERCHORD",
+        "url": "https://coverchord.com/"
+      },
+      {
+        "name": "1LDK",
+        "url": "https://onlinestore.1ldkshop.com/"
+      }
+    ]
+  },
+
+  {
+    "brand": "COMOLI",
+    "name": "シルクネル シャツ",
+    "season": "2024AW",
+    "stock": 1,
+    "image": "https://images.unsplash.com/photo-1512436991641-6745cdb1723f?q=80&w=1200&auto=format&fit=crop",
+    "shops": [
+      {
+        "name": "Bshop",
+        "url": "https://bshop-inc.com/"
+      }
+    ]
+  },
+
+  {
+    "brand": "COMOLI",
+    "name": "デニム 5P パンツ",
+    "season": "2023AW",
+    "stock": 3,
+    "image": "https://images.unsplash.com/photo-1542272604-787c3835535d?q=80&w=1200&auto=format&fit=crop",
+    "shops": [
+      {
+        "name": "DIVERSE",
+        "url": "https://www.diverse-web.com/"
       },
       {
         "name": "COVERCHORD",
         "url": "https://coverchord.com/"
       },
       {
-        "name": "1LDK Online Store",
-        "url": "https://onlinestore.1ldkshop.com/"
-      },
-      {
-        "name": "Bshop",
-        "url": "https://bshop-inc.com/shop/ec/item/list/category_id/85"
-      }
-    ]
-  },
-  {
-    "brand": "AURALEE",
-    "name": "AURALEE 在庫検索",
-    "stock": 2,
-    "image": "https://images.unsplash.com/photo-1512436991641-6745cdb1723f?q=80&w=1200&auto=format&fit=crop",
-    "shops": [
-      {
-        "name": "1LDK Online Store",
-        "url": "https://onlinestore.1ldkshop.com/"
-      },
-      {
-        "name": "BEAMS",
-        "url": "https://www.beams.co.jp/"
-      }
-    ]
-  },
-  {
-    "brand": "NICENESS",
-    "name": "NICENESS 在庫検索",
-    "stock": 1,
-    "image": "https://images.unsplash.com/photo-1503341504253-dff4815485f1?q=80&w=1200&auto=format&fit=crop",
-    "shops": [
-      {
-        "name": "DIVERSE",
-        "url": "https://www.diverse-web.com/"
+        "name": "ARKnets",
+        "url": "https://www.arknets.co.jp/"
       }
     ]
   }
