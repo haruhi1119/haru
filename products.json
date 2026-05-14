@@ -1,40 +1,36 @@
 [
   {
     "brand": "COMOLI",
-    "name": "ウール天竺 長袖",
-    "stock": 2,
+    "name": "COMOLI 在庫検索",
+    "stock": 3,
     "image": "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?q=80&w=1200&auto=format&fit=crop",
-    "url": "https://www.coverchord.com/"
+    "url": "https://www.comoli.jp/stockists"
   },
-
   {
     "brand": "COMOLI",
-    "name": "デニムジャケット",
+    "name": "COVERCHORD COMOLI",
     "stock": 1,
     "image": "https://images.unsplash.com/photo-1542272604-787c3835535d?q=80&w=1200&auto=format&fit=crop",
-    "url": "https://1ldkshop.com/"
+    "url": "https://coverchord.com/"
   },
-
   {
-    "brand": "AURALEE",
-    "name": "SUPER LIGHT WOOL SHIRT",
-    "stock": 3,
+    "brand": "COMOLI",
+    "name": "1LDK COMOLI",
+    "stock": 1,
     "image": "https://images.unsplash.com/photo-1512436991641-6745cdb1723f?q=80&w=1200&auto=format&fit=crop",
-    "url": "https://www.beams.co.jp/"
+    "url": "https://onlinestore.1ldkshop.com/"
   },
-
   {
-    "brand": "HERILL",
-    "name": "Goldencash Sweater",
+    "brand": "COMOLI",
+    "name": "Bshop COMOLI",
     "stock": 1,
     "image": "https://images.unsplash.com/photo-1523398002811-999ca8dec234?q=80&w=1200&auto=format&fit=crop",
-    "url": "https://shop.ciacura.jp/"
+    "url": "https://bshop-inc.com/shop/ec/item/list/category_id/85"
   },
-
   {
     "brand": "NICENESS",
-    "name": "LOWE シャツ",
-    "stock": 2,
+    "name": "DIVERSE NICENESS",
+    "stock": 1,
     "image": "https://images.unsplash.com/photo-1503341504253-dff4815485f1?q=80&w=1200&auto=format&fit=crop",
     "url": "https://www.diverse-web.com/"
   }
