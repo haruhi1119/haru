@@ -4,34 +4,51 @@
     "name": "COMOLI 在庫検索",
     "stock": 3,
     "image": "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?q=80&w=1200&auto=format&fit=crop",
-    "url": "https://www.comoli.jp/stockists"
+    "shops": [
+      {
+        "name": "COMOLI 公式 Stockists",
+        "url": "https://www.comoli.jp/stockists"
+      },
+      {
+        "name": "COVERCHORD",
+        "url": "https://coverchord.com/"
+      },
+      {
+        "name": "1LDK Online Store",
+        "url": "https://onlinestore.1ldkshop.com/"
+      },
+      {
+        "name": "Bshop",
+        "url": "https://bshop-inc.com/shop/ec/item/list/category_id/85"
+      }
+    ]
   },
   {
-    "brand": "COMOLI",
-    "name": "COVERCHORD COMOLI",
-    "stock": 1,
-    "image": "https://images.unsplash.com/photo-1542272604-787c3835535d?q=80&w=1200&auto=format&fit=crop",
-    "url": "https://coverchord.com/"
-  },
-  {
-    "brand": "COMOLI",
-    "name": "1LDK COMOLI",
-    "stock": 1,
+    "brand": "AURALEE",
+    "name": "AURALEE 在庫検索",
+    "stock": 2,
     "image": "https://images.unsplash.com/photo-1512436991641-6745cdb1723f?q=80&w=1200&auto=format&fit=crop",
-    "url": "https://onlinestore.1ldkshop.com/"
-  },
-  {
-    "brand": "COMOLI",
-    "name": "Bshop COMOLI",
-    "stock": 1,
-    "image": "https://images.unsplash.com/photo-1523398002811-999ca8dec234?q=80&w=1200&auto=format&fit=crop",
-    "url": "https://bshop-inc.com/shop/ec/item/list/category_id/85"
+    "shops": [
+      {
+        "name": "1LDK Online Store",
+        "url": "https://onlinestore.1ldkshop.com/"
+      },
+      {
+        "name": "BEAMS",
+        "url": "https://www.beams.co.jp/"
+      }
+    ]
   },
   {
     "brand": "NICENESS",
-    "name": "DIVERSE NICENESS",
+    "name": "NICENESS 在庫検索",
     "stock": 1,
     "image": "https://images.unsplash.com/photo-1503341504253-dff4815485f1?q=80&w=1200&auto=format&fit=crop",
-    "url": "https://www.diverse-web.com/"
+    "shops": [
+      {
+        "name": "DIVERSE",
+        "url": "https://www.diverse-web.com/"
+      }
+    ]
   }
 ]
