@@ -7,7 +7,7 @@
     "size": ["2", "3"],
     "code": "VCL-C4411018",
     "stock": 1,
-    "image": "https://coverchord.com/cdn/shop/files/vcl-c4411_charcoal.jpg",
+    "image": "./IMG_2291.webp",
     "shops": [
       {
         "name": "COVERCHORD",
@@ -15,6 +15,7 @@
       }
     ]
   },
+
   {
     "brand": "COMOLI",
     "name": "シルクネル シャツ",
@@ -31,6 +32,7 @@
       }
     ]
   },
+
   {
     "brand": "COMOLI",
     "name": "デニム 5P パンツ",
