@@ -6,101 +6,207 @@
 <title>BRAND STOCK</title>
 
 <style>
-body{margin:0;background:#f5f5f5;font-family:sans-serif;color:#111}
-header{background:#fff;padding:34px 18px;text-align:center;border-bottom:1px solid #ddd;position:sticky;top:0;z-index:10}
-h1{font-size:44px;letter-spacing:8px;margin:0 0 18px}
-input{width:90%;max-width:520px;padding:15px;border:1px solid #ccc;border-radius:12px;font-size:16px}
-#products{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:24px;padding:24px}
-.card{background:#fff;border-radius:20px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,.08)}
-.card img{width:100%;height:360px;object-fit:cover}
-.content{padding:20px}
-.brand{color:#777;margin-bottom:8px}
-.name{font-size:24px;font-weight:bold;margin-bottom:12px}
-.meta{font-size:14px;color:#555;line-height:1.8;margin-bottom:14px}
-.price{font-size:20px;font-weight:bold;margin-bottom:12px}
-.size{font-size:14px;margin-bottom:14px}
-.stock{color:green;font-size:20px;font-weight:bold;margin-bottom:16px}
-.shop-title{font-size:14px;color:#555;margin-bottom:10px}
-.shop-button{display:block;background:#000;color:#fff;text-align:center;text-decoration:none;padding:14px;border-radius:12px;margin-top:10px}
-.empty{padding:40px;text-align:center;color:#777}
+
+body{
+  margin:0;
+  background:#f5f5f5;
+  font-family:sans-serif;
+  color:#111;
+}
+
+header{
+  background:white;
+  padding:50px 20px 30px;
+  text-align:center;
+  border-bottom:1px solid #ddd;
+}
+
+.logo{
+  font-size:72px;
+  font-weight:900;
+  letter-spacing:10px;
+  margin-bottom:25px;
+}
+
+.search{
+  width:100%;
+  max-width:700px;
+  padding:18px;
+  border-radius:18px;
+  border:1px solid #ccc;
+  font-size:20px;
+  box-sizing:border-box;
+}
+
+.container{
+  max-width:1200px;
+  margin:auto;
+  padding:30px 20px;
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(320px,1fr));
+  gap:24px;
+}
+
+.card{
+  background:white;
+  border-radius:22px;
+  overflow:hidden;
+  box-shadow:0 2px 14px rgba(0,0,0,.08);
+}
+
+.card img{
+  width:100%;
+  height:420px;
+  object-fit:cover;
+}
+
+.info{
+  padding:22px;
+}
+
+.brand{
+  color:#888;
+  font-size:15px;
+  margin-bottom:8px;
+}
+
+.name{
+  font-size:32px;
+  font-weight:bold;
+  line-height:1.4;
+  margin-bottom:18px;
+}
+
+.meta{
+  color:#666;
+  font-size:15px;
+  line-height:1.8;
+}
+
+.stock{
+  margin-top:18px;
+  color:green;
+  font-size:30px;
+  font-weight:bold;
+}
+
+.button{
+  display:block;
+  margin-top:22px;
+  background:black;
+  color:white;
+  text-decoration:none;
+  text-align:center;
+  padding:18px;
+  border-radius:16px;
+  font-size:18px;
+}
+
 </style>
 </head>
 
 <body>
 
 <header>
-  <h1>BRAND STOCK</h1>
-  <input id="search" placeholder="ブランド・商品名・型番で検索">
+
+<div class="logo">
+BRAND STOCK
+</div>
+
+<input
+  id="search"
+  class="search"
+  placeholder="ブランド・商品名・型番で検索"
+/>
+
 </header>
 
-<div id="products">読み込み中...</div>
+<div id="products" class="container"></div>
 
 <script>
+
 let allProducts = [];
 
-async function loadProducts(){
-  const res = await fetch("./products.json");
-  allProducts = await res.json();
-  showProducts(allProducts);
-}
+fetch("./products.json")
+.then(res => res.json())
+.then(data => {
 
-function showProducts(items){
-  const area = document.getElementById("products");
-  area.innerHTML = "";
+  allProducts = data;
 
-  if(items.length === 0){
-    area.innerHTML = '<div class="empty">該当商品がありません</div>';
-    return;
-  }
+  renderProducts(data);
 
-  items.forEach(item => {
-    const shopButtons = item.shops.map(shop => `
-      <a class="shop-button" href="${shop.url}" target="_blank">
-        ${shop.name}
-      </a>
-    `).join("");
-
-    area.innerHTML += `
-      <div class="card">
-        <img src="${item.image}">
-        <div class="content">
-          <div class="brand">${item.brand}</div>
-          <div class="name">${item.name}</div>
-
-          <div class="meta">
-            Season：${item.season}<br>
-            Code：${item.code}
-          </div>
-
-          <div class="price">${item.price}</div>
-
-          <div class="size">
-            Size：${item.size.join(" / ")}
-          </div>
-
-          <div class="stock">在庫あり ${item.stock}店舗</div>
-
-          <div class="shop-title">取扱店舗</div>
-          ${shopButtons}
-        </div>
-      </div>
-    `;
-  });
-}
-
-document.getElementById("search").addEventListener("input", function(){
-  const word = this.value.toLowerCase();
-
-  const result = allProducts.filter(item =>
-    item.brand.toLowerCase().includes(word) ||
-    item.name.toLowerCase().includes(word) ||
-    item.code.toLowerCase().includes(word)
-  );
-
-  showProducts(result);
 });
 
-loadProducts();
+function renderProducts(products){
+
+  const container = document.getElementById("products");
+
+  container.innerHTML = "";
+
+  products.forEach(product => {
+
+    container.innerHTML += `
+
+      <div class="card">
+
+        <img src="${product.image}">
+
+        <div class="info">
+
+          <div class="brand">
+            ${product.brand}
+          </div>
+
+          <div class="name">
+            ${product.name}
+          </div>
+
+          <div class="meta">
+            Season：${product.season}<br>
+            Code：${product.code}<br>
+            Price：${product.price}<br>
+            Size：${product.size.join(" / ")}
+          </div>
+
+          <div class="stock">
+            在庫あり ${product.stock}店舗
+          </div>
+
+          <a class="button" href="./shop.html">
+            在庫店舗を見る
+          </a>
+
+        </div>
+
+      </div>
+
+    `;
+
+  });
+
+}
+
+document.getElementById("search")
+.addEventListener("input", e => {
+
+  const keyword = e.target.value.toLowerCase();
+
+  const filtered = allProducts.filter(product => {
+
+    return (
+      product.brand.toLowerCase().includes(keyword)
+      ||
+      product.name.toLowerCase().includes(keyword)
+      ||
+      product.code.toLowerCase().includes(keyword)
+    );
+
+  });
+
+  renderProducts(filtered);
+
+});
+
 </script>
 
 </body>
