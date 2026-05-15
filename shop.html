@@ -13,10 +13,12 @@ h1{font-size:28px;margin:0 0 8px}
 .meta{color:#666;font-size:14px;line-height:1.7}
 .container{padding:20px}
 .shop{background:white;border-radius:18px;padding:20px;margin-bottom:16px;box-shadow:0 2px 10px rgba(0,0,0,.08)}
-.shop-name{font-size:22px;font-weight:bold;margin-bottom:10px}
+.shop-name{font-size:22px;font-weight:bold;margin-bottom:12px}
 .status{color:green;font-weight:bold;margin-bottom:12px}
-.size{font-size:14px;color:#555;margin-bottom:16px}
-.button{display:block;background:#000;color:#fff;text-align:center;text-decoration:none;padding:14px;border-radius:12px}
+.size-row{display:flex;justify-content:space-between;border-top:1px solid #eee;padding:12px 0;font-size:15px}
+.ok{color:green;font-weight:bold}
+.sold{color:#999}
+.button{display:block;background:#000;color:#fff;text-align:center;text-decoration:none;padding:14px;border-radius:12px;margin-top:16px}
 </style>
 </head>
 
@@ -36,7 +38,22 @@ h1{font-size:28px;margin:0 0 8px}
   <div class="shop">
     <div class="shop-name">COVERCHORD</div>
     <div class="status">在庫あり</div>
-    <div class="size">Size：2 / 3</div>
+
+    <div class="size-row">
+      <span>Size 2</span>
+      <span class="ok">○ 在庫あり</span>
+    </div>
+
+    <div class="size-row">
+      <span>Size 3</span>
+      <span class="ok">○ 在庫あり</span>
+    </div>
+
+    <div class="size-row">
+      <span>Size 4</span>
+      <span class="sold">SOLD OUT</span>
+    </div>
+
     <a class="button" href="https://coverchord.com/products/vcl-c4411?variant=44808963522751" target="_blank">
       購入ページへ
     </a>
@@ -45,7 +62,17 @@ h1{font-size:28px;margin:0 0 8px}
   <div class="shop">
     <div class="shop-name">1LDK</div>
     <div class="status" style="color:#999;">未確認</div>
-    <div class="size">Size：未取得</div>
+
+    <div class="size-row">
+      <span>Size 2</span>
+      <span class="sold">未取得</span>
+    </div>
+
+    <div class="size-row">
+      <span>Size 3</span>
+      <span class="sold">未取得</span>
+    </div>
+
     <a class="button" href="https://onlinestore.1ldkshop.com/" target="_blank">
       店舗ページへ
     </a>
