@@ -8,10 +8,18 @@ export default async function handler(req, res) {
 
     const html = await response.text();
 
+    const matches = [
+      ...html.matchAll(/"title":"(.*?)"/g)
+    ];
+
+    const products = matches
+      .slice(0, 20)
+      .map(item => item[1]);
+
     res.status(200).json({
       success: true,
-      length: html.length,
-      preview: html.slice(0, 1000)
+      count: products.length,
+      products
     });
 
   } catch (error) {
