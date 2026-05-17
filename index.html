@@ -29,9 +29,13 @@ header{
 }
 
 .container{
-  max-width:900px;
+  max-width:1200px;
   margin:auto;
   padding:30px 20px;
+  display:grid;
+  grid-template-columns:
+  repeat(auto-fill,minmax(340px,1fr));
+  gap:24px;
 }
 
 .card{
@@ -43,7 +47,7 @@ header{
 
 .card img{
   width:100%;
-  height:500px;
+  height:420px;
   object-fit:cover;
 }
 
@@ -57,16 +61,16 @@ header{
 }
 
 .name{
-  font-size:32px;
+  font-size:28px;
   font-weight:bold;
-  margin-bottom:18px;
   line-height:1.4;
+  margin-bottom:18px;
 }
 
 .price{
   font-size:24px;
   font-weight:bold;
-  margin-bottom:22px;
+  margin-bottom:20px;
 }
 
 .size-title{
@@ -78,9 +82,9 @@ header{
 .size{
   display:flex;
   justify-content:space-between;
-  padding:14px 0;
+  padding:12px 0;
   border-top:1px solid #eee;
-  font-size:18px;
+  font-size:15px;
 }
 
 .ok{
@@ -94,7 +98,7 @@ header{
 
 .button{
   display:block;
-  margin-top:26px;
+  margin-top:24px;
   background:black;
   color:white;
   text-decoration:none;
@@ -102,6 +106,12 @@ header{
   padding:18px;
   border-radius:16px;
   font-size:18px;
+}
+
+.loading{
+  text-align:center;
+  padding:100px 20px;
+  font-size:24px;
 }
 
 </style>
@@ -117,15 +127,18 @@ COMOLI
 
 </header>
 
-<div class="container">
-
-<div id="product"></div>
-
+<div
+  id="products"
+  class="container"
+>
+  <div class="loading">
+    商品取得中...
+  </div>
 </div>
 
 <script>
 
-async function loadProduct(){
+async function loadProducts(){
 
   const listRes =
     await fetch("./api/test");
@@ -133,40 +146,86 @@ async function loadProduct(){
   const listData =
     await listRes.json();
 
-  const item =
-    listData.products[1];
+  const products =
+    listData.products.slice(0, 12);
 
-  const sizeRes =
-    await fetch(
-      "./api/product?handle=" +
-      item.handle
-    );
+  const cards = await Promise.all(
 
-  const sizeData =
-    await sizeRes.json();
+    products.map(async item => {
 
-  const sizesHtml =
-    sizeData.sizes.map(size => {
+      const sizeRes =
+        await fetch(
+          "./api/product?handle=" +
+          item.handle
+        );
+
+      const sizeData =
+        await sizeRes.json();
+
+      const sizesHtml =
+        sizeData.sizes.map(size => {
+
+          return `
+
+            <div class="size">
+
+              <div>
+                ${size.title}
+              </div>
+
+              <div class="${
+                size.available
+                ? "ok"
+                : "sold"
+              }">
+
+                ${
+                  size.available
+                  ? "在庫あり"
+                  : "SOLD OUT"
+                }
+
+              </div>
+
+            </div>
+
+          `;
+
+        }).join("");
 
       return `
 
-        <div class="size">
+        <div class="card">
 
-          <div>
-            ${size.title}
-          </div>
+          <img src="${item.image}">
 
-          <div class="${
-            size.available
-            ? "ok"
-            : "sold"
-          }">
+          <div class="info">
 
-            ${
-              size.available
-              ? "在庫あり"
-              : "SOLD OUT"
-            }
+            <div class="brand">
+              COMOLI
+            </div>
+
+            <div class="name">
+              ${item.title}
+            </div>
+
+            <div class="price">
+              ¥${Number(item.price).toLocaleString()}
+            </div>
+
+            <div class="size-title">
+              SIZE STOCK
+            </div>
+
+            ${sizesHtml}
+
+            <a
+              class="button"
+              href="https://coverchord.com/products/${item.handle}"
+              target="_blank"
+            >
+              商品ページを見る
+            </a>
 
           </div>
 
@@ -174,53 +233,18 @@ async function loadProduct(){
 
       `;
 
-    }).join("");
+    })
+
+  );
 
   document
-  .getElementById("product")
-  .innerHTML = `
-
-    <div class="card">
-
-      <img src="${item.image}">
-
-      <div class="info">
-
-        <div class="brand">
-          COMOLI
-        </div>
-
-        <div class="name">
-          ${item.title}
-        </div>
-
-        <div class="price">
-          ¥${Number(item.price).toLocaleString()}
-        </div>
-
-        <div class="size-title">
-          SIZE STOCK
-        </div>
-
-        ${sizesHtml}
-
-        <a
-          class="button"
-          href="https://coverchord.com/products/${item.handle}"
-          target="_blank"
-        >
-          商品ページを見る
-        </a>
-
-      </div>
-
-    </div>
-
-  `;
+  .getElementById("products")
+  .innerHTML =
+    cards.join("");
 
 }
 
-loadProduct();
+loadProducts();
 
 </script>
 
