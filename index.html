@@ -28,23 +28,10 @@ header{
   margin-bottom:25px;
 }
 
-.search{
-  width:100%;
-  max-width:700px;
-  padding:18px;
-  border-radius:18px;
-  border:1px solid #ccc;
-  font-size:20px;
-  box-sizing:border-box;
-}
-
 .container{
-  max-width:1200px;
+  max-width:900px;
   margin:auto;
   padding:30px 20px;
-  display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(320px,1fr));
-  gap:24px;
 }
 
 .card{
@@ -56,42 +43,58 @@ header{
 
 .card img{
   width:100%;
-  height:420px;
+  height:500px;
   object-fit:cover;
 }
 
 .info{
-  padding:22px;
+  padding:24px;
 }
 
 .brand{
   color:#888;
-  font-size:15px;
   margin-bottom:8px;
 }
 
 .name{
-  font-size:28px;
+  font-size:32px;
   font-weight:bold;
-  line-height:1.4;
   margin-bottom:18px;
+  line-height:1.4;
 }
 
 .price{
-  font-size:22px;
+  font-size:24px;
   font-weight:bold;
-  margin-bottom:14px;
+  margin-bottom:22px;
 }
 
-.stock{
+.size-title{
+  font-size:14px;
+  color:#666;
+  margin-bottom:12px;
+}
+
+.size{
+  display:flex;
+  justify-content:space-between;
+  padding:14px 0;
+  border-top:1px solid #eee;
+  font-size:18px;
+}
+
+.ok{
   color:green;
-  font-size:26px;
   font-weight:bold;
+}
+
+.sold{
+  color:#999;
 }
 
 .button{
   display:block;
-  margin-top:22px;
+  margin-top:26px;
   background:black;
   color:white;
   text-decoration:none;
@@ -99,12 +102,6 @@ header{
   padding:18px;
   border-radius:16px;
   font-size:18px;
-}
-
-.loading{
-  text-align:center;
-  padding:80px 20px;
-  font-size:22px;
 }
 
 </style>
@@ -115,127 +112,115 @@ header{
 <header>
 
 <div class="logo">
-BRAND STOCK
+COMOLI
 </div>
-
-<input
-  id="search"
-  class="search"
-  placeholder="ブランド・商品名で検索"
-/>
 
 </header>
 
-<div id="products" class="container">
-  <div class="loading">
-    商品取得中...
-  </div>
+<div class="container">
+
+<div id="product"></div>
+
 </div>
 
 <script>
 
-let allProducts = [];
+async function loadProduct(){
 
-fetch("./api/test")
-.then(res => res.json())
-.then(data => {
+  const listRes =
+    await fetch("./api/test");
 
-  allProducts = data.products.map(item => {
+  const listData =
+    await listRes.json();
 
-    return {
+  const item =
+    listData.products[1];
 
-      brand: "COMOLI",
+  const sizeRes =
+    await fetch(
+      "./api/product?handle=" +
+      item.handle
+    );
 
-      name: item.title,
+  const sizeData =
+    await sizeRes.json();
 
-      image: item.image,
+  const sizesHtml =
+    sizeData.sizes.map(size => {
 
-      price: "¥" + Number(item.price).toLocaleString(),
+      return `
 
-      url:
-        "https://coverchord.com/products/" +
-        item.handle
+        <div class="size">
 
-    };
-
-  });
-
-  renderProducts(allProducts);
-
-});
-
-function renderProducts(products){
-
-  const container =
-    document.getElementById("products");
-
-  container.innerHTML = "";
-
-  products.forEach(product => {
-
-    container.innerHTML += `
-
-      <div class="card">
-
-        <img src="${product.image}">
-
-        <div class="info">
-
-          <div class="brand">
-            ${product.brand}
+          <div>
+            ${size.title}
           </div>
 
-          <div class="name">
-            ${product.name}
-          </div>
+          <div class="${
+            size.available
+            ? "ok"
+            : "sold"
+          }">
 
-          <div class="price">
-            ${product.price}
-          </div>
+            ${
+              size.available
+              ? "在庫あり"
+              : "SOLD OUT"
+            }
 
-          <div class="stock">
-            在庫確認可能
           </div>
-
-          <a
-            class="button"
-            href="${product.url}"
-            target="_blank"
-          >
-            商品ページを見る
-          </a>
 
         </div>
 
+      `;
+
+    }).join("");
+
+  document
+  .getElementById("product")
+  .innerHTML = `
+
+    <div class="card">
+
+      <img src="${item.image}">
+
+      <div class="info">
+
+        <div class="brand">
+          COMOLI
+        </div>
+
+        <div class="name">
+          ${item.title}
+        </div>
+
+        <div class="price">
+          ¥${Number(item.price).toLocaleString()}
+        </div>
+
+        <div class="size-title">
+          SIZE STOCK
+        </div>
+
+        ${sizesHtml}
+
+        <a
+          class="button"
+          href="https://coverchord.com/products/${item.handle}"
+          target="_blank"
+        >
+          商品ページを見る
+        </a>
+
       </div>
 
-    `;
+    </div>
 
-  });
+  `;
 
 }
 
-document
-.getElementById("search")
-.addEventListener("input", e => {
-
-  const keyword =
-    e.target.value.toLowerCase();
-
-  const filtered =
-    allProducts.filter(product => {
-
-      return (
-        product.name
-        .toLowerCase()
-        .includes(keyword)
-      );
-
-    });
-
-  renderProducts(filtered);
-
-});
+loadProduct();
 
 </script>
 
