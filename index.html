@@ -71,22 +71,21 @@ header{
 }
 
 .name{
-  font-size:32px;
+  font-size:28px;
   font-weight:bold;
   line-height:1.4;
   margin-bottom:18px;
 }
 
-.meta{
-  color:#666;
-  font-size:15px;
-  line-height:1.8;
+.price{
+  font-size:22px;
+  font-weight:bold;
+  margin-bottom:14px;
 }
 
 .stock{
-  margin-top:18px;
   color:green;
-  font-size:30px;
+  font-size:26px;
   font-weight:bold;
 }
 
@@ -100,6 +99,12 @@ header{
   padding:18px;
   border-radius:16px;
   font-size:18px;
+}
+
+.loading{
+  text-align:center;
+  padding:80px 20px;
+  font-size:22px;
 }
 
 </style>
@@ -116,30 +121,53 @@ BRAND STOCK
 <input
   id="search"
   class="search"
-  placeholder="ブランド・商品名・型番で検索"
+  placeholder="ブランド・商品名で検索"
 />
 
 </header>
 
-<div id="products" class="container"></div>
+<div id="products" class="container">
+  <div class="loading">
+    商品取得中...
+  </div>
+</div>
 
 <script>
 
 let allProducts = [];
 
-fetch("./products.json")
+fetch("./api/test")
 .then(res => res.json())
 .then(data => {
 
-  allProducts = data;
+  allProducts = data.products.map(item => {
 
-  renderProducts(data);
+    return {
+
+      brand: "COMOLI",
+
+      name: item.title,
+
+      image: item.image,
+
+      price: "¥" + Number(item.price).toLocaleString(),
+
+      url:
+        "https://coverchord.com/products/" +
+        item.handle
+
+    };
+
+  });
+
+  renderProducts(allProducts);
 
 });
 
 function renderProducts(products){
 
-  const container = document.getElementById("products");
+  const container =
+    document.getElementById("products");
 
   container.innerHTML = "";
 
@@ -161,19 +189,20 @@ function renderProducts(products){
             ${product.name}
           </div>
 
-          <div class="meta">
-            Season：${product.season}<br>
-            Code：${product.code}<br>
-            Price：${product.price}<br>
-            Size：${product.size.join(" / ")}
+          <div class="price">
+            ${product.price}
           </div>
 
           <div class="stock">
-            在庫あり ${product.stock}店舗
+            在庫確認可能
           </div>
 
-          <a class="button" href="./shop.html">
-            在庫店舗を見る
+          <a
+            class="button"
+            href="${product.url}"
+            target="_blank"
+          >
+            商品ページを見る
           </a>
 
         </div>
@@ -186,22 +215,23 @@ function renderProducts(products){
 
 }
 
-document.getElementById("search")
+document
+.getElementById("search")
 .addEventListener("input", e => {
 
-  const keyword = e.target.value.toLowerCase();
+  const keyword =
+    e.target.value.toLowerCase();
 
-  const filtered = allProducts.filter(product => {
+  const filtered =
+    allProducts.filter(product => {
 
-    return (
-      product.brand.toLowerCase().includes(keyword)
-      ||
-      product.name.toLowerCase().includes(keyword)
-      ||
-      product.code.toLowerCase().includes(keyword)
-    );
+      return (
+        product.name
+        .toLowerCase()
+        .includes(keyword)
+      );
 
-  });
+    });
 
   renderProducts(filtered);
 
