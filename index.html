@@ -16,7 +16,7 @@ body{
 
 header{
   background:white;
-  padding:40px 16px 24px;
+  padding:48px 20px 28px;
   text-align:center;
   border-bottom:1px solid #ddd;
   position:sticky;
@@ -25,37 +25,20 @@ header{
 }
 
 .logo{
-  font-size:48px;
+  font-size:54px;
   font-weight:900;
   letter-spacing:6px;
-  margin-bottom:18px;
+  margin-bottom:22px;
 }
 
 .search{
   width:100%;
   max-width:700px;
-  padding:16px;
-  border-radius:16px;
+  padding:18px;
+  border-radius:18px;
   border:1px solid #ccc;
-  font-size:18px;
+  font-size:20px;
   box-sizing:border-box;
-}
-
-.brand-buttons{
-  margin-top:16px;
-  display:flex;
-  flex-wrap:wrap;
-  gap:8px;
-  justify-content:center;
-}
-
-.brand-button{
-  border:none;
-  background:black;
-  color:white;
-  padding:10px 14px;
-  border-radius:999px;
-  font-size:13px;
 }
 
 .container{
@@ -170,63 +153,9 @@ BRAND STOCK
 <input
   id="search"
   class="search"
-  placeholder="ブランド検索"
+  placeholder="ブランド名を入力（comoli / auralee など）"
   value="comoli"
 />
-
-<div class="brand-buttons">
-
-<button class="brand-button"
-onclick="changeBrand('comoli')">
-COMOLI
-</button>
-
-<button class="brand-button"
-onclick="changeBrand('auralee')">
-AURALEE
-</button>
-
-<button class="brand-button"
-onclick="changeBrand('herill')">
-HERILL
-</button>
-
-<button class="brand-button"
-onclick="changeBrand('niceness')">
-NICENESS
-</button>
-
-<button class="brand-button"
-onclick="changeBrand('graphpaper')">
-Graphpaper
-</button>
-
-<button class="brand-button"
-onclick="changeBrand('yoke')">
-YOKE
-</button>
-
-<button class="brand-button"
-onclick="changeBrand('stein')">
-Stein
-</button>
-
-<button class="brand-button"
-onclick="changeBrand('blurhms')">
-blurhms
-</button>
-
-<button class="brand-button"
-onclick="changeBrand('heugn')">
-HEUGN
-</button>
-
-<button class="brand-button"
-onclick="changeBrand('maatee-and-sons')">
-MAATEE&SONS
-</button>
-
-</div>
 
 </header>
 
@@ -241,7 +170,11 @@ MAATEE&SONS
 
 <script>
 
+let currentBrand = "comoli";
+
 async function loadProducts(brand){
+
+  currentBrand = brand;
 
   document
   .getElementById("products")
@@ -393,22 +326,14 @@ function toggleSizes(index){
 
 }
 
-function changeBrand(brand){
-
-  document
-  .getElementById("search")
-  .value = brand;
-
-  loadProducts(brand);
-
-}
-
 document
 .getElementById("search")
 .addEventListener("change", e => {
 
   loadProducts(
-    e.target.value.toLowerCase()
+    e.target.value
+    .trim()
+    .toLowerCase()
   );
 
 });
