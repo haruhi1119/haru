@@ -25,7 +25,34 @@ header{
   font-size:72px;
   font-weight:900;
   letter-spacing:10px;
-  margin-bottom:25px;
+  margin-bottom:24px;
+}
+
+.search{
+  width:100%;
+  max-width:700px;
+  padding:18px;
+  border-radius:18px;
+  border:1px solid #ccc;
+  font-size:20px;
+  box-sizing:border-box;
+}
+
+.brand-buttons{
+  margin-top:20px;
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  justify-content:center;
+}
+
+.brand-button{
+  border:none;
+  background:black;
+  color:white;
+  padding:12px 18px;
+  border-radius:999px;
+  font-size:16px;
 }
 
 .container{
@@ -122,7 +149,46 @@ header{
 <header>
 
 <div class="logo">
+BRAND STOCK
+</div>
+
+<input
+  id="search"
+  class="search"
+  placeholder="ブランド検索"
+  value="comoli"
+/>
+
+<div class="brand-buttons">
+
+<button
+  class="brand-button"
+  onclick="changeBrand('comoli')"
+>
 COMOLI
+</button>
+
+<button
+  class="brand-button"
+  onclick="changeBrand('auralee')"
+>
+AURALEE
+</button>
+
+<button
+  class="brand-button"
+  onclick="changeBrand('herill')"
+>
+HERILL
+</button>
+
+<button
+  class="brand-button"
+  onclick="changeBrand('niceness')"
+>
+NICENESS
+</button>
+
 </div>
 
 </header>
@@ -138,10 +204,21 @@ COMOLI
 
 <script>
 
-async function loadProducts(){
+async function loadProducts(brand){
+
+  document
+  .getElementById("products")
+  .innerHTML = `
+    <div class="loading">
+      ${brand.toUpperCase()}
+      を取得中...
+    </div>
+  `;
 
   const listRes =
-    await fetch("./api/test");
+    await fetch(
+      "./api/test?brand=" + brand
+    );
 
   const listData =
     await listRes.json();
@@ -202,7 +279,7 @@ async function loadProducts(){
           <div class="info">
 
             <div class="brand">
-              COMOLI
+              ${brand.toUpperCase()}
             </div>
 
             <div class="name">
@@ -244,7 +321,27 @@ async function loadProducts(){
 
 }
 
-loadProducts();
+function changeBrand(brand){
+
+  document
+  .getElementById("search")
+  .value = brand;
+
+  loadProducts(brand);
+
+}
+
+document
+.getElementById("search")
+.addEventListener("change", e => {
+
+  loadProducts(
+    e.target.value.toLowerCase()
+  );
+
+});
+
+loadProducts("comoli");
 
 </script>
 
