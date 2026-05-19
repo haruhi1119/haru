@@ -153,7 +153,7 @@ BRAND STOCK
 <input
   id="search"
   class="search"
-  placeholder="ブランド名を入力（comoli / auralee など）"
+  placeholder="ブランド名を入力"
   value="comoli"
 />
 
@@ -170,11 +170,41 @@ BRAND STOCK
 
 <script>
 
-let currentBrand = "comoli";
+const brandMap = {
+
+  "コモリ": "comoli",
+  "comoli": "comoli",
+
+  "オーラリー": "auralee",
+  "auralee": "auralee",
+
+  "ヘリル": "herill",
+  "herill": "herill",
+
+  "ナイスネス": "niceness",
+  "niceness": "niceness",
+
+  "グラフペーパー": "graphpaper",
+  "graphpaper": "graphpaper",
+
+  "ヨーク": "yoke",
+  "yoke": "yoke",
+
+  "シュタイン": "stein",
+  "stein": "stein",
+
+  "ブラームス": "blurhms",
+  "blurhms": "blurhms",
+
+  "ユーゲン": "heugn",
+  "heugn": "heugn",
+
+  "マーティー": "maatee-and-sons",
+  "maatee": "maatee-and-sons"
+
+};
 
 async function loadProducts(brand){
-
-  currentBrand = brand;
 
   document
   .getElementById("products")
@@ -330,11 +360,26 @@ document
 .getElementById("search")
 .addEventListener("change", e => {
 
-  loadProducts(
+  const input =
     e.target.value
-    .trim()
-    .toLowerCase()
-  );
+    .trim();
+
+  const normalized =
+    input.toLowerCase();
+
+  const brand =
+    brandMap[input]
+    || brandMap[normalized];
+
+  if(brand){
+
+    loadProducts(brand);
+
+  } else {
+
+    alert("ブランド未登録");
+
+  }
 
 });
 
