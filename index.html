@@ -209,6 +209,15 @@ function normalizeBrand(input){
 
 }
 
+function normalizeTitle(title){
+
+  return title
+    .toLowerCase()
+    .replace(/\s/g,"")
+    .replace(/-/g,"");
+
+}
+
 async function loadProducts(brand){
 
   document
@@ -224,70 +233,247 @@ async function loadProducts(brand){
 
   `;
 
-  const coverRes =
-    await fetch(
+  const stores = [
 
-      `./api/test?store=coverchord&brand=${brand}`
+    {
+      id: "coverchord",
+      type: "shopify"
+    },
 
-    );
+    {
+      id: "ciacura",
+      type: "search"
+    }
 
-  const coverData =
-    await coverRes.json();
+  ];
+
+  let merged = {};
+
+  for(const store of stores){
+
+    const res =
+      await fetch(
+
+        `./api/test?store=${store.id}&brand=${brand}`
+
+      );
+
+    const data =
+      await res.json();
+
+    if(store.type === "shopify"){
+
+      data.products.forEach(product => {
+
+        const key =
+          normalizeTitle(product.title);
+
+        if(!merged[key]){
+
+          merged[key] = {
+
+            title:
+              product.title,
+
+            image:
+              product.image,
+
+            price:
+              product.price,
+
+            handle:
+              product.handle,
+
+            stores: []
+
+          };
+
+        }
+
+        merged[key]
+        .stores
+        .push({
+
+          store:
+            store.id,
+
+          handle:
+            product.handle
+
+        });
+
+      });
+
+    }
+
+    if(store.type === "search"){
+
+      const key =
+        "ciacura-search";
+
+      if(!merged[key]){
+
+        merged[key] = {
+
+          title:
+            "CIACURA SEARCH",
+
+          image:
+            "",
+
+          price:
+            "",
+
+          handle:
+            "",
+
+          stores: []
+
+        };
+
+      }
+
+      merged[key]
+      .stores
+      .push({
+
+        store:
+          "ciacura",
+
+        searchUrl:
+          data.searchUrl
+
+      });
+
+    }
+
+  }
+
+  const mergedProducts =
+    Object.values(merged);
 
   const cards =
     await Promise.all(
 
-      coverData.products
+      mergedProducts
       .slice(0,12)
       .map(async (item,index) => {
 
-        const sizeRes =
-          await fetch(
+        let storesHtml = "";
 
-            "./api/product?handle=" +
-            item.handle
+        for(const store of item.stores){
 
-          );
+          if(store.store === "coverchord"){
 
-        const sizeData =
-          await sizeRes.json();
+            const sizeRes =
+              await fetch(
 
-        const sizesHtml =
-          sizeData.sizes.map(size => {
+                "./api/product?handle=" +
+                store.handle
 
-            return `
+              );
 
-              <div class="size">
+            const sizeData =
+              await sizeRes.json();
 
-                <div>
-                  ${size.title}
+            const sizesHtml =
+              sizeData.sizes.map(size => {
+
+                return `
+
+                  <div class="size">
+
+                    <div>
+                      ${size.title}
+                    </div>
+
+                    <div class="${
+                      size.available
+                      ? "ok"
+                      : "sold"
+                    }">
+
+                      ${
+                        size.available
+                        ? "在庫あり"
+                        : "SOLD"
+                      }
+
+                    </div>
+
+                  </div>
+
+                `;
+
+              }).join("");
+
+            storesHtml += `
+
+              <div class="storeBlock">
+
+                <div class="storeName">
+
+                  COVERCHORD
+
                 </div>
 
-                <div class="${
-                  size.available
-                  ? "ok"
-                  : "sold"
-                }">
+                ${sizesHtml}
 
-                  ${
-                    size.available
-                    ? "在庫あり"
-                    : "SOLD"
-                  }
+                <a
+                  class="storeButton"
+                  href="https://coverchord.com/products/${store.handle}"
+                  target="_blank"
+                >
 
-                </div>
+                  COVERCHORDで見る
+
+                </a>
 
               </div>
 
             `;
 
-          }).join("");
+          }
+
+          if(store.store === "ciacura"){
+
+            storesHtml += `
+
+              <div class="storeBlock">
+
+                <div class="storeName">
+
+                  CIACURA
+
+                </div>
+
+                <a
+                  class="storeButton"
+                  href="${store.searchUrl}"
+                  target="_blank"
+                >
+
+                  CIACURAで検索
+
+                </a>
+
+              </div>
+
+            `;
+
+          }
+
+        }
 
         return `
 
           <div class="card">
 
-            <img src="${item.image}">
+            ${
+              item.image
+              ? `<img src="${item.image}">`
+              : ""
+            }
 
             <div class="info">
 
@@ -303,11 +489,15 @@ async function loadProducts(brand){
 
               </div>
 
-              <div class="price">
-
-                ¥${Number(item.price).toLocaleString()}
-
-              </div>
+              ${
+                item.price
+                ? `
+                  <div class="price">
+                    ¥${Number(item.price).toLocaleString()}
+                  </div>
+                `
+                : ""
+              }
 
               <button
                 class="toggle"
@@ -323,47 +513,7 @@ async function loadProducts(brand){
                 class="stores"
               >
 
-                <div class="storeBlock">
-
-                  <div class="storeName">
-
-                    COVERCHORD
-
-                  </div>
-
-                  ${sizesHtml}
-
-                  <a
-                    class="storeButton"
-                    href="https://coverchord.com/products/${item.handle}"
-                    target="_blank"
-                  >
-
-                    COVERCHORDで見る
-
-                  </a>
-
-                </div>
-
-                <div class="storeBlock">
-
-                  <div class="storeName">
-
-                    CIACURA
-
-                  </div>
-
-                  <a
-                    class="storeButton"
-                    href="https://shop.ciacura.jp/search?q=${brand}"
-                    target="_blank"
-                  >
-
-                    CIACURAで検索
-
-                  </a>
-
-                </div>
+                ${storesHtml}
 
               </div>
 
