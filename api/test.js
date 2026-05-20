@@ -77,17 +77,46 @@ export default async function handler(req, res) {
       const products =
         data.products.map(product => ({
 
+          id:
+            product.id,
+
           title:
             product.title,
 
           handle:
             product.handle,
 
+          vendor:
+            product.vendor,
+
+          type:
+            product.product_type,
+
+          tags:
+            product.tags,
+
           price:
             product.variants?.[0]?.price,
 
           image:
             product.images?.[0]?.src,
+
+          variants:
+            product.variants.map(v => ({
+
+              id:
+                v.id,
+
+              title:
+                v.title,
+
+              sku:
+                v.sku,
+
+              available:
+                v.available
+
+            })),
 
           store:
             store.id
@@ -97,6 +126,8 @@ export default async function handler(req, res) {
       return res.status(200).json({
 
         success: true,
+
+        brand,
 
         store:
           store.id,
