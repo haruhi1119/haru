@@ -13,6 +13,18 @@ const stores = [
   },
 
   {
+    id: "arknets",
+
+    type: "shopify",
+
+    baseUrl:
+      "https://www.arknets.co.jp",
+
+    collectionUrl:
+      "https://www.arknets.co.jp/goods_list/"
+  },
+
+  {
     id: "ciacura",
 
     type: "search",
@@ -62,7 +74,7 @@ export default async function handler(req, res) {
 
     }
 
-    if(store.type === "shopify"){
+    if(store.id === "coverchord"){
 
       const url =
 
@@ -139,6 +151,25 @@ export default async function handler(req, res) {
           products.length,
 
         products
+
+      });
+
+    }
+
+    if(store.id === "arknets"){
+
+      return res.status(200).json({
+
+        success: true,
+
+        store:
+          store.id,
+
+        type:
+          store.type,
+
+        message:
+          "arknets prepared"
 
       });
 
