@@ -47,17 +47,8 @@ header{
   font-size:13px;
 }
 
-.storeSection{
-  padding:20px 16px 0;
-}
-
-.storeTitle{
-  font-size:28px;
-  font-weight:900;
-  margin-bottom:18px;
-}
-
 .container{
+  padding:16px;
   display:grid;
   grid-template-columns:1fr 1fr;
   gap:14px;
@@ -110,19 +101,29 @@ header{
   margin-bottom:10px;
 }
 
-.sizes{
+.stores{
   display:none;
 }
 
-.sizes.open{
+.stores.open{
   display:block;
+}
+
+.storeBlock{
+  border-top:1px solid #eee;
+  padding:12px 0;
+}
+
+.storeName{
+  font-size:13px;
+  font-weight:bold;
+  margin-bottom:10px;
 }
 
 .size{
   display:flex;
   justify-content:space-between;
-  padding:8px 0;
-  border-top:1px solid #eee;
+  padding:6px 0;
   font-size:12px;
 }
 
@@ -135,36 +136,16 @@ header{
   color:#999;
 }
 
-.button{
+.storeButton{
   display:block;
-  margin-top:14px;
+  margin-top:10px;
   background:black;
   color:white;
   text-decoration:none;
   text-align:center;
-  padding:14px;
-  border-radius:14px;
-  font-size:14px;
-}
-
-.searchLink{
-
-  display:block;
-
-  background:white;
-
-  padding:20px;
-
-  border-radius:18px;
-
-  text-decoration:none;
-
-  color:black;
-
-  font-weight:bold;
-
-  box-shadow:0 2px 10px rgba(0,0,0,.08);
-
+  padding:12px;
+  border-radius:12px;
+  font-size:13px;
 }
 
 .loading{
@@ -192,12 +173,15 @@ BRAND STOCK
 />
 
 <div class="helper">
-店舗横断検索
+商品横断在庫検索
 </div>
 
 </header>
 
-<div id="app">
+<div
+  id="products"
+  class="container"
+>
 
   <div class="loading">
     商品取得中...
@@ -207,14 +191,6 @@ BRAND STOCK
 
 <script>
 
-const stores = [
-
-  "coverchord",
-
-  "ciacura"
-
-];
-
 function normalizeBrand(input){
 
   const map = {
@@ -222,7 +198,6 @@ function normalizeBrand(input){
     "コモリ": "comoli",
     "オーラリー": "auralee",
     "ヘリル": "herill",
-    "ナイスネス": "niceness",
     "ブラームス": "blurhms"
 
   };
@@ -234,153 +209,71 @@ function normalizeBrand(input){
 
 }
 
-async function loadAllStores(brand){
+async function loadProducts(brand){
 
   document
-  .getElementById("app")
+  .getElementById("products")
   .innerHTML = `
 
     <div class="loading">
 
       ${brand.toUpperCase()}
-      を検索中...
+      を取得中...
 
     </div>
 
   `;
 
-  let html = "";
+  const coverRes =
+    await fetch(
 
-  for(const store of stores){
+      `./api/test?store=coverchord&brand=${brand}`
 
-    const res =
-      await fetch(
+    );
 
-        `./api/test?store=${store}&brand=${brand}`
+  const coverData =
+    await coverRes.json();
 
-      );
+  const cards =
+    await Promise.all(
 
-    const data =
-      await res.json();
+      coverData.products
+      .slice(0,12)
+      .map(async (item,index) => {
 
-    if(store === "coverchord"){
+        const sizeRes =
+          await fetch(
 
-      html += `
+            "./api/product?handle=" +
+            item.handle
 
-        <div class="storeSection">
+          );
 
-          <div class="storeTitle">
+        const sizeData =
+          await sizeRes.json();
 
-            COVERCHORD
-
-          </div>
-
-          <div class="container">
-
-      `;
-
-      const cards =
-        await Promise.all(
-
-          data.products
-          .slice(0,6)
-          .map(async (item,index) => {
-
-            const sizeRes =
-              await fetch(
-
-                "./api/product?handle=" +
-                item.handle
-
-              );
-
-            const sizeData =
-              await sizeRes.json();
-
-            const sizesHtml =
-              sizeData.sizes.map(size => {
-
-                return `
-
-                  <div class="size">
-
-                    <div>
-                      ${size.title}
-                    </div>
-
-                    <div class="${
-                      size.available
-                      ? "ok"
-                      : "sold"
-                    }">
-
-                      ${
-                        size.available
-                        ? "在庫あり"
-                        : "SOLD"
-                      }
-
-                    </div>
-
-                  </div>
-
-                `;
-
-              }).join("");
+        const sizesHtml =
+          sizeData.sizes.map(size => {
 
             return `
 
-              <div class="card">
+              <div class="size">
 
-                <img src="${item.image}">
+                <div>
+                  ${size.title}
+                </div>
 
-                <div class="info">
+                <div class="${
+                  size.available
+                  ? "ok"
+                  : "sold"
+                }">
 
-                  <div class="brand">
-
-                    COVERCHORD
-
-                  </div>
-
-                  <div class="name">
-
-                    ${item.title}
-
-                  </div>
-
-                  <div class="price">
-
-                    ¥${Number(item.price).toLocaleString()}
-
-                  </div>
-
-                  <button
-                    class="toggle"
-                    onclick="toggleSizes('${store}-${index}')"
-                  >
-
-                    SIZE STOCK ▼
-
-                  </button>
-
-                  <div
-                    id="sizes-${store}-${index}"
-                    class="sizes"
-                  >
-
-                    ${sizesHtml}
-
-                  </div>
-
-                  <a
-                    class="button"
-                    href="https://coverchord.com/products/${item.handle}"
-                    target="_blank"
-                  >
-
-                    商品を見る
-
-                  </a>
+                  ${
+                    size.available
+                    ? "在庫あり"
+                    : "SOLD"
+                  }
 
                 </div>
 
@@ -388,65 +281,114 @@ async function loadAllStores(brand){
 
             `;
 
-          })
+          }).join("");
 
-        );
+        return `
 
-      html += cards.join("");
+          <div class="card">
 
-      html += `
+            <img src="${item.image}">
+
+            <div class="info">
+
+              <div class="brand">
+
+                ${brand.toUpperCase()}
+
+              </div>
+
+              <div class="name">
+
+                ${item.title}
+
+              </div>
+
+              <div class="price">
+
+                ¥${Number(item.price).toLocaleString()}
+
+              </div>
+
+              <button
+                class="toggle"
+                onclick="toggleStores(${index})"
+              >
+
+                STORE / SIZE ▼
+
+              </button>
+
+              <div
+                id="stores-${index}"
+                class="stores"
+              >
+
+                <div class="storeBlock">
+
+                  <div class="storeName">
+
+                    COVERCHORD
+
+                  </div>
+
+                  ${sizesHtml}
+
+                  <a
+                    class="storeButton"
+                    href="https://coverchord.com/products/${item.handle}"
+                    target="_blank"
+                  >
+
+                    COVERCHORDで見る
+
+                  </a>
+
+                </div>
+
+                <div class="storeBlock">
+
+                  <div class="storeName">
+
+                    CIACURA
+
+                  </div>
+
+                  <a
+                    class="storeButton"
+                    href="https://shop.ciacura.jp/search?q=${brand}"
+                    target="_blank"
+                  >
+
+                    CIACURAで検索
+
+                  </a>
+
+                </div>
+
+              </div>
+
+            </div>
 
           </div>
 
-        </div>
+        `;
 
-      `;
+      })
 
-    }
-
-    if(store === "ciacura"){
-
-      html += `
-
-        <div class="storeSection">
-
-          <div class="storeTitle">
-
-            CIACURA
-
-          </div>
-
-          <a
-            class="searchLink"
-            href="${data.searchUrl}"
-            target="_blank"
-          >
-
-            CIACURAで
-            ${brand.toUpperCase()}
-            を検索 →
-
-          </a>
-
-        </div>
-
-      `;
-
-    }
-
-  }
+    );
 
   document
-  .getElementById("app")
-  .innerHTML = html;
+  .getElementById("products")
+  .innerHTML =
+    cards.join("");
 
 }
 
-function toggleSizes(id){
+function toggleStores(index){
 
   document
   .getElementById(
-    "sizes-" + id
+    "stores-" + index
   )
   .classList
   .toggle("open");
@@ -463,11 +405,11 @@ document
   const brand =
     normalizeBrand(input);
 
-  loadAllStores(brand);
+  loadProducts(brand);
 
 });
 
-loadAllStores("comoli");
+loadProducts("comoli");
 
 </script>
 
