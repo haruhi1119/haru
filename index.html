@@ -209,38 +209,6 @@ function normalizeBrand(input){
 
 }
 
-function normalizeTitle(title){
-
-  return title
-
-    .toLowerCase()
-
-    .replace(/\s/g,"")
-
-    .replace(/-/g,"")
-
-    .replace(/_/g,"")
-
-    .replace(/\//g,"")
-
-    .replace(/black/g,"")
-
-    .replace(/white/g,"")
-
-    .replace(/charcoal/g,"")
-
-    .replace(/navy/g,"")
-
-    .replace(/beige/g,"")
-
-    .replace(/gray/g,"")
-
-    .replace(/brown/g,"")
-
-    .replace(/green/g,"");
-
-}
-
 async function loadProducts(brand){
 
   document
@@ -256,241 +224,70 @@ async function loadProducts(brand){
 
   `;
 
-  const stores = [
+  const coverRes =
+    await fetch(
 
-    {
-      id: "coverchord",
-      type: "shopify"
-    },
+      `./api/test?store=coverchord&brand=${brand}`
 
-    {
-      id: "ciacura",
-      type: "search"
-    }
+    );
 
-  ];
-
-  let merged = {};
-
-  for(const store of stores){
-
-    const res =
-      await fetch(
-
-        `./api/test?store=${store.id}&brand=${brand}`
-
-      );
-
-    const data =
-      await res.json();
-
-    if(store.type === "shopify"){
-
-      data.products.forEach(product => {
-
-        const key =
-          normalizeTitle(product.title);
-
-        if(!merged[key]){
-
-          merged[key] = {
-
-            title:
-              product.title,
-
-            image:
-              product.image,
-
-            price:
-              product.price,
-
-            stores: []
-
-          };
-
-        }
-
-        merged[key]
-        .stores
-        .push({
-
-          store:
-            store.id,
-
-          handle:
-            product.handle
-
-        });
-
-      });
-
-    }
-
-    if(store.type === "search"){
-
-      const key =
-        "ciacura-search";
-
-      if(!merged[key]){
-
-        merged[key] = {
-
-          title:
-            "CIACURA SEARCH",
-
-          image:
-            "",
-
-          price:
-            "",
-
-          stores: []
-
-        };
-
-      }
-
-      merged[key]
-      .stores
-      .push({
-
-        store:
-          "ciacura",
-
-        searchUrl:
-          data.searchUrl
-
-      });
-
-    }
-
-  }
-
-  const mergedProducts =
-    Object.values(merged);
+  const coverData =
+    await coverRes.json();
 
   const cards =
     await Promise.all(
 
-      mergedProducts
+      coverData.products
       .slice(0,12)
       .map(async (item,index) => {
 
-        let storesHtml = "";
+        const sizeRes =
+          await fetch(
 
-        for(const store of item.stores){
+            "./api/product?handle=" +
+            item.handle
 
-          if(store.store === "coverchord"){
+          );
 
-            const sizeRes =
-              await fetch(
+        const sizeData =
+          await sizeRes.json();
 
-                "./api/product?handle=" +
-                store.handle
+        const sizesHtml =
+          sizeData.sizes.map(size => {
 
-              );
+            return `
 
-            const sizeData =
-              await sizeRes.json();
+              <div class="size">
 
-            const sizesHtml =
-              sizeData.sizes.map(size => {
-
-                return `
-
-                  <div class="size">
-
-                    <div>
-                      ${size.title}
-                    </div>
-
-                    <div class="${
-                      size.available
-                      ? "ok"
-                      : "sold"
-                    }">
-
-                      ${
-                        size.available
-                        ? "在庫あり"
-                        : "SOLD"
-                      }
-
-                    </div>
-
-                  </div>
-
-                `;
-
-              }).join("");
-
-            storesHtml += `
-
-              <div class="storeBlock">
-
-                <div class="storeName">
-
-                  COVERCHORD
-
+                <div>
+                  ${size.title}
                 </div>
 
-                ${sizesHtml}
+                <div class="${
+                  size.available
+                  ? "ok"
+                  : "sold"
+                }">
 
-                <a
-                  class="storeButton"
-                  href="https://coverchord.com/products/${store.handle}"
-                  target="_blank"
-                >
+                  ${
+                    size.available
+                    ? "在庫あり"
+                    : "SOLD"
+                  }
 
-                  COVERCHORDで見る
-
-                </a>
+                </div>
 
               </div>
 
             `;
 
-          }
-
-          if(store.store === "ciacura"){
-
-            storesHtml += `
-
-              <div class="storeBlock">
-
-                <div class="storeName">
-
-                  CIACURA
-
-                </div>
-
-                <a
-                  class="storeButton"
-                  href="${store.searchUrl}"
-                  target="_blank"
-                >
-
-                  CIACURAで検索
-
-                </a>
-
-              </div>
-
-            `;
-
-          }
-
-        }
+          }).join("");
 
         return `
 
           <div class="card">
 
-            ${
-              item.image
-              ? `<img src="${item.image}">`
-              : ""
-            }
+            <img src="${item.image}">
 
             <div class="info">
 
@@ -506,15 +303,11 @@ async function loadProducts(brand){
 
               </div>
 
-              ${
-                item.price
-                ? `
-                  <div class="price">
-                    ¥${Number(item.price).toLocaleString()}
-                  </div>
-                `
-                : ""
-              }
+              <div class="price">
+
+                ¥${Number(item.price).toLocaleString()}
+
+              </div>
 
               <button
                 class="toggle"
@@ -530,7 +323,67 @@ async function loadProducts(brand){
                 class="stores"
               >
 
-                ${storesHtml}
+                <div class="storeBlock">
+
+                  <div class="storeName">
+
+                    COVERCHORD
+
+                  </div>
+
+                  ${sizesHtml}
+
+                  <a
+                    class="storeButton"
+                    href="https://coverchord.com/products/${item.handle}"
+                    target="_blank"
+                  >
+
+                    COVERCHORDで見る
+
+                  </a>
+
+                </div>
+
+                <div class="storeBlock">
+
+                  <div class="storeName">
+
+                    ARKnets
+
+                  </div>
+
+                  <a
+                    class="storeButton"
+                    href="https://www.arknets.co.jp/goods_list/?keyword=${brand}"
+                    target="_blank"
+                  >
+
+                    ARKnetsで検索
+
+                  </a>
+
+                </div>
+
+                <div class="storeBlock">
+
+                  <div class="storeName">
+
+                    CIACURA
+
+                  </div>
+
+                  <a
+                    class="storeButton"
+                    href="https://shop.ciacura.jp/search?q=${brand}"
+                    target="_blank"
+                  >
+
+                    CIACURAで検索
+
+                  </a>
+
+                </div>
 
               </div>
 
