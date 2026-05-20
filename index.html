@@ -504,7 +504,7 @@ function renderProducts(){
                   target="_blank"
                 >
 
-                  商品を見る
+                  COVERCHORDで見る
 
                 </a>
 
@@ -526,7 +526,7 @@ function renderProducts(){
 
                 <a
                   class="link"
-                  href="https://www.arknets.co.jp/goods_list/?keyword=${item.vendor}"
+                  href="https://www.arknets.co.jp/goods_list/?keyword=${encodeURIComponent(item.title)}"
                   target="_blank"
                 >
 
@@ -552,7 +552,7 @@ function renderProducts(){
 
                 <a
                   class="link"
-                  href="https://shop.ciacura.jp/search?q=${item.vendor}"
+                  href="https://shop.ciacura.jp/search?q=${encodeURIComponent(item.title)}"
                   target="_blank"
                 >
 
