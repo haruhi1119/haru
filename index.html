@@ -109,22 +109,18 @@ header{
   display:block;
 }
 
-.storeBlock{
-  border-top:1px solid #eee;
-  padding:12px 0;
-}
-
-.storeName{
-  font-size:13px;
-  font-weight:bold;
-  margin-bottom:10px;
-}
-
-.size{
-  display:flex;
-  justify-content:space-between;
-  padding:6px 0;
+.table{
+  width:100%;
+  border-collapse:collapse;
+  margin-top:10px;
   font-size:12px;
+}
+
+.table th,
+.table td{
+  border:1px solid #eee;
+  padding:8px;
+  text-align:center;
 }
 
 .ok{
@@ -136,9 +132,13 @@ header{
   color:#999;
 }
 
+.storeButtons{
+  margin-top:14px;
+}
+
 .storeButton{
   display:block;
-  margin-top:10px;
+  margin-top:8px;
   background:black;
   color:white;
   text-decoration:none;
@@ -252,18 +252,20 @@ async function loadProducts(brand){
         const sizeData =
           await sizeRes.json();
 
-        const sizesHtml =
+        const sizeRows =
           sizeData.sizes.map(size => {
 
             return `
 
-              <div class="size">
+              <tr>
 
-                <div>
+                <td>
+
                   ${size.title}
-                </div>
 
-                <div class="${
+                </td>
+
+                <td class="${
                   size.available
                   ? "ok"
                   : "sold"
@@ -271,13 +273,19 @@ async function loadProducts(brand){
 
                   ${
                     size.available
-                    ? "在庫あり"
-                    : "SOLD"
+                    ? "○"
+                    : "×"
                   }
 
-                </div>
+                </td>
 
-              </div>
+                <td>
+
+                  ?
+
+                </td>
+
+              </tr>
 
             `;
 
@@ -314,7 +322,7 @@ async function loadProducts(brand){
                 onclick="toggleStores(${index})"
               >
 
-                STORE / SIZE ▼
+                SIZE COMPARISON ▼
 
               </button>
 
@@ -323,15 +331,29 @@ async function loadProducts(brand){
                 class="stores"
               >
 
-                <div class="storeBlock">
+                <table class="table">
 
-                  <div class="storeName">
+                  <tr>
 
-                    COVERCHORD
+                    <th>
+                      SIZE
+                    </th>
 
-                  </div>
+                    <th>
+                      COVER
+                    </th>
 
-                  ${sizesHtml}
+                    <th>
+                      ARK
+                    </th>
+
+                  </tr>
+
+                  ${sizeRows}
+
+                </table>
+
+                <div class="storeButtons">
 
                   <a
                     class="storeButton"
@@ -339,19 +361,9 @@ async function loadProducts(brand){
                     target="_blank"
                   >
 
-                    COVERCHORDで見る
+                    COVERCHORD
 
                   </a>
-
-                </div>
-
-                <div class="storeBlock">
-
-                  <div class="storeName">
-
-                    ARKnets
-
-                  </div>
 
                   <a
                     class="storeButton"
@@ -359,19 +371,9 @@ async function loadProducts(brand){
                     target="_blank"
                   >
 
-                    ARKnetsで検索
+                    ARKnets
 
                   </a>
-
-                </div>
-
-                <div class="storeBlock">
-
-                  <div class="storeName">
-
-                    CIACURA
-
-                  </div>
 
                   <a
                     class="storeButton"
@@ -379,7 +381,7 @@ async function loadProducts(brand){
                     target="_blank"
                   >
 
-                    CIACURAで検索
+                    CIACURA
 
                   </a>
 
