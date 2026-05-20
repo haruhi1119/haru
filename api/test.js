@@ -1,3 +1,40 @@
+const stores = [
+
+  {
+    id: "coverchord",
+
+    type: "shopify",
+
+    baseUrl:
+      "https://coverchord.com",
+
+    collectionUrl:
+      "https://coverchord.com/collections/"
+  },
+
+  {
+    id: "ciacura",
+
+    type: "search",
+
+    baseUrl:
+      "https://shop.ciacura.jp",
+
+    searchUrl:
+      "https://shop.ciacura.jp/search?q="
+  },
+
+  {
+    id: "digitalmountain",
+
+    type: "html",
+
+    baseUrl:
+      "https://digital-mountain.net"
+  }
+
+];
+
 export default async function handler(req, res) {
 
   try {
@@ -5,56 +42,117 @@ export default async function handler(req, res) {
     const brand =
       req.query.brand || "comoli";
 
-    const store =
+    const storeId =
       req.query.store || "coverchord";
 
-    let url = "";
+    const store =
+      stores.find(
+        s => s.id === storeId
+      );
 
-    if(store === "coverchord"){
+    if(!store){
 
-      url =
-        `https://coverchord.com/collections/${brand}/products.json?limit=20`;
+      return res.status(404).json({
+
+        success: false,
+
+        error: "store not found"
+
+      });
 
     }
 
-    const response =
-      await fetch(url);
+    if(store.type === "shopify"){
 
-    const data =
-      await response.json();
+      const url =
 
-    const products =
-      data.products.map(product => ({
+        `${store.collectionUrl}${brand}/products.json?limit=20`;
 
-        title:
-          product.title,
+      const response =
+        await fetch(url);
 
-        handle:
-          product.handle,
+      const data =
+        await response.json();
 
-        price:
-          product.variants?.[0]?.price,
+      const products =
+        data.products.map(product => ({
 
-        image:
-          product.images?.[0]?.src,
+          title:
+            product.title,
 
-        store
+          handle:
+            product.handle,
 
-      }));
+          price:
+            product.variants?.[0]?.price,
 
-    res.status(200).json({
+          image:
+            product.images?.[0]?.src,
 
-      success: true,
+          store:
+            store.id
 
-      brand,
+        }));
 
-      store,
+      return res.status(200).json({
 
-      count: products.length,
+        success: true,
 
-      products
+        store:
+          store.id,
 
-    });
+        type:
+          store.type,
+
+        count:
+          products.length,
+
+        products
+
+      });
+
+    }
+
+    if(store.type === "search"){
+
+      return res.status(200).json({
+
+        success: true,
+
+        store:
+          store.id,
+
+        type:
+          store.type,
+
+        message:
+          "search type store",
+
+        searchUrl:
+          `${store.searchUrl}${brand}`
+
+      });
+
+    }
+
+    if(store.type === "html"){
+
+      return res.status(200).json({
+
+        success: true,
+
+        store:
+          store.id,
+
+        type:
+          store.type,
+
+        message:
+          "html scraping store"
+
+      });
+
+    }
 
   } catch (error) {
 
@@ -62,7 +160,8 @@ export default async function handler(req, res) {
 
       success: false,
 
-      error: error.message
+      error:
+        error.message
 
     });
 
