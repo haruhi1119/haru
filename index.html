@@ -154,7 +154,7 @@ BRAND STOCK
   id="search"
   class="search"
   placeholder="ブランド名を入力"
-  value="comoli"
+  value="コモリ"
 />
 
 </header>
@@ -170,39 +170,73 @@ BRAND STOCK
 
 <script>
 
-const brandMap = {
+const brands = [
 
-  "コモリ": "comoli",
-  "comoli": "comoli",
+  {
+    ja: "コモリ",
+    en: "comoli"
+  },
 
-  "オーラリー": "auralee",
-  "auralee": "auralee",
+  {
+    ja: "オーラリー",
+    en: "auralee"
+  },
 
-  "ヘリル": "herill",
-  "herill": "herill",
+  {
+    ja: "ヘリル",
+    en: "herill"
+  },
 
-  "ナイスネス": "niceness",
-  "niceness": "niceness",
+  {
+    ja: "ナイスネス",
+    en: "niceness"
+  },
 
-  "グラフペーパー": "graphpaper",
-  "graphpaper": "graphpaper",
+  {
+    ja: "グラフペーパー",
+    en: "graphpaper"
+  },
 
-  "ヨーク": "yoke",
-  "yoke": "yoke",
+  {
+    ja: "ヨーク",
+    en: "yoke"
+  },
 
-  "シュタイン": "stein",
-  "stein": "stein",
+  {
+    ja: "シュタイン",
+    en: "stein"
+  },
 
-  "ブラームス": "blurhms",
-  "blurhms": "blurhms",
+  {
+    ja: "ブラームス",
+    en: "blurhms"
+  },
 
-  "ユーゲン": "heugn",
-  "heugn": "heugn",
+  {
+    ja: "ユーゲン",
+    en: "heugn"
+  },
 
-  "マーティー": "maatee-and-sons",
-  "maatee": "maatee-and-sons"
+  {
+    ja: "マーティー",
+    en: "maatee-and-sons"
+  }
 
-};
+];
+
+const brandMap = {};
+
+brands.forEach(brand => {
+
+  brandMap[
+    brand.ja
+  ] = brand.en;
+
+  brandMap[
+    brand.en
+  ] = brand.en;
+
+});
 
 async function loadProducts(brand){
 
