@@ -212,9 +212,32 @@ function normalizeBrand(input){
 function normalizeTitle(title){
 
   return title
+
     .toLowerCase()
+
     .replace(/\s/g,"")
-    .replace(/-/g,"");
+
+    .replace(/-/g,"")
+
+    .replace(/_/g,"")
+
+    .replace(/\//g,"")
+
+    .replace(/black/g,"")
+
+    .replace(/white/g,"")
+
+    .replace(/charcoal/g,"")
+
+    .replace(/navy/g,"")
+
+    .replace(/beige/g,"")
+
+    .replace(/gray/g,"")
+
+    .replace(/brown/g,"")
+
+    .replace(/green/g,"");
 
 }
 
@@ -281,9 +304,6 @@ async function loadProducts(brand){
             price:
               product.price,
 
-            handle:
-              product.handle,
-
             stores: []
 
           };
@@ -322,9 +342,6 @@ async function loadProducts(brand){
             "",
 
           price:
-            "",
-
-          handle:
             "",
 
           stores: []
