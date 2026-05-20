@@ -47,8 +47,17 @@ header{
   font-size:13px;
 }
 
+.storeSection{
+  padding:20px 16px 0;
+}
+
+.storeTitle{
+  font-size:28px;
+  font-weight:900;
+  margin-bottom:18px;
+}
+
 .container{
-  padding:16px;
   display:grid;
   grid-template-columns:1fr 1fr;
   gap:14px;
@@ -78,7 +87,7 @@ header{
 }
 
 .name{
-  font-size:16px;
+  font-size:15px;
   font-weight:bold;
   line-height:1.4;
   margin-bottom:10px;
@@ -138,11 +147,30 @@ header{
   font-size:14px;
 }
 
+.searchLink{
+
+  display:block;
+
+  background:white;
+
+  padding:20px;
+
+  border-radius:18px;
+
+  text-decoration:none;
+
+  color:black;
+
+  font-weight:bold;
+
+  box-shadow:0 2px 10px rgba(0,0,0,.08);
+
+}
+
 .loading{
   text-align:center;
   padding:100px 20px;
   font-size:22px;
-  grid-column:1/3;
 }
 
 </style>
@@ -159,26 +187,33 @@ BRAND STOCK
 <input
   id="search"
   class="search"
-  placeholder="ブランド検索（例：comoli / オーラリー）"
+  placeholder="ブランド検索"
   value="comoli"
 />
 
 <div class="helper">
-自由入力検索対応
+店舗横断検索
 </div>
 
 </header>
 
-<div
-  id="products"
-  class="container"
->
+<div id="app">
+
   <div class="loading">
     商品取得中...
   </div>
+
 </div>
 
 <script>
+
+const stores = [
+
+  "coverchord",
+
+  "ciacura"
+
+];
 
 function normalizeBrand(input){
 
@@ -188,12 +223,7 @@ function normalizeBrand(input){
     "オーラリー": "auralee",
     "ヘリル": "herill",
     "ナイスネス": "niceness",
-    "グラフペーパー": "graphpaper",
-    "ヨーク": "yoke",
-    "シュタイン": "stein",
-    "ブラームス": "blurhms",
-    "ユーゲン": "heugn",
-    "マーティー": "maatee-and-sons"
+    "ブラームス": "blurhms"
 
   };
 
@@ -204,79 +234,153 @@ function normalizeBrand(input){
 
 }
 
-async function loadProducts(brand){
+async function loadAllStores(brand){
 
   document
-  .getElementById("products")
+  .getElementById("app")
   .innerHTML = `
+
     <div class="loading">
+
       ${brand.toUpperCase()}
-      を取得中...
+      を検索中...
+
     </div>
+
   `;
 
-  try {
+  let html = "";
 
-    const listRes =
+  for(const store of stores){
+
+    const res =
       await fetch(
-        "./api/test?brand=" + brand
+
+        `./api/test?store=${store}&brand=${brand}`
+
       );
 
-    const listData =
-      await listRes.json();
+    const data =
+      await res.json();
 
-    const products =
-      listData.products.slice(0, 12);
+    if(store === "coverchord"){
 
-    if(products.length === 0){
+      html += `
 
-      document
-      .getElementById("products")
-      .innerHTML = `
-        <div class="loading">
-          商品が見つかりません
-        </div>
+        <div class="storeSection">
+
+          <div class="storeTitle">
+
+            COVERCHORD
+
+          </div>
+
+          <div class="container">
+
       `;
 
-      return;
+      const cards =
+        await Promise.all(
 
-    }
+          data.products
+          .slice(0,6)
+          .map(async (item,index) => {
 
-    const cards = await Promise.all(
+            const sizeRes =
+              await fetch(
 
-      products.map(async (item,index) => {
+                "./api/product?handle=" +
+                item.handle
 
-        const sizeRes =
-          await fetch(
-            "./api/product?handle=" +
-            item.handle
-          );
+              );
 
-        const sizeData =
-          await sizeRes.json();
+            const sizeData =
+              await sizeRes.json();
 
-        const sizesHtml =
-          sizeData.sizes.map(size => {
+            const sizesHtml =
+              sizeData.sizes.map(size => {
+
+                return `
+
+                  <div class="size">
+
+                    <div>
+                      ${size.title}
+                    </div>
+
+                    <div class="${
+                      size.available
+                      ? "ok"
+                      : "sold"
+                    }">
+
+                      ${
+                        size.available
+                        ? "在庫あり"
+                        : "SOLD"
+                      }
+
+                    </div>
+
+                  </div>
+
+                `;
+
+              }).join("");
 
             return `
 
-              <div class="size">
+              <div class="card">
 
-                <div>
-                  ${size.title}
-                </div>
+                <img src="${item.image}">
 
-                <div class="${
-                  size.available
-                  ? "ok"
-                  : "sold"
-                }">
+                <div class="info">
 
-                  ${
-                    size.available
-                    ? "在庫あり"
-                    : "SOLD"
-                  }
+                  <div class="brand">
+
+                    COVERCHORD
+
+                  </div>
+
+                  <div class="name">
+
+                    ${item.title}
+
+                  </div>
+
+                  <div class="price">
+
+                    ¥${Number(item.price).toLocaleString()}
+
+                  </div>
+
+                  <button
+                    class="toggle"
+                    onclick="toggleSizes('${store}-${index}')"
+                  >
+
+                    SIZE STOCK ▼
+
+                  </button>
+
+                  <div
+                    id="sizes-${store}-${index}"
+                    class="sizes"
+                  >
+
+                    ${sizesHtml}
+
+                  </div>
+
+                  <a
+                    class="button"
+                    href="https://coverchord.com/products/${item.handle}"
+                    target="_blank"
+                  >
+
+                    商品を見る
+
+                  </a>
 
                 </div>
 
@@ -284,86 +388,65 @@ async function loadProducts(brand){
 
             `;
 
-          }).join("");
+          })
 
-        return `
+        );
 
-          <div class="card">
+      html += cards.join("");
 
-            <img src="${item.image}">
-
-            <div class="info">
-
-              <div class="brand">
-                ${brand.toUpperCase()}
-              </div>
-
-              <div class="name">
-                ${item.title}
-              </div>
-
-              <div class="price">
-                ¥${Number(item.price).toLocaleString()}
-              </div>
-
-              <button
-                class="toggle"
-                onclick="toggleSizes(${index})"
-              >
-                SIZE STOCK ▼
-              </button>
-
-              <div
-                id="sizes-${index}"
-                class="sizes"
-              >
-
-                ${sizesHtml}
-
-              </div>
-
-              <a
-                class="button"
-                href="https://coverchord.com/products/${item.handle}"
-                target="_blank"
-              >
-                商品を見る
-              </a>
-
-            </div>
+      html += `
 
           </div>
 
-        `;
+        </div>
 
-      })
+      `;
 
-    );
+    }
 
-    document
-    .getElementById("products")
-    .innerHTML =
-      cards.join("");
+    if(store === "ciacura"){
 
-  } catch(error){
+      html += `
 
-    document
-    .getElementById("products")
-    .innerHTML = `
-      <div class="loading">
-        商品取得失敗
-      </div>
-    `;
+        <div class="storeSection">
+
+          <div class="storeTitle">
+
+            CIACURA
+
+          </div>
+
+          <a
+            class="searchLink"
+            href="${data.searchUrl}"
+            target="_blank"
+          >
+
+            CIACURAで
+            ${brand.toUpperCase()}
+            を検索 →
+
+          </a>
+
+        </div>
+
+      `;
+
+    }
 
   }
 
+  document
+  .getElementById("app")
+  .innerHTML = html;
+
 }
 
-function toggleSizes(index){
+function toggleSizes(id){
 
   document
   .getElementById(
-    "sizes-" + index
+    "sizes-" + id
   )
   .classList
   .toggle("open");
@@ -375,17 +458,16 @@ document
 .addEventListener("change", e => {
 
   const input =
-    e.target.value
-    .trim();
+    e.target.value.trim();
 
   const brand =
     normalizeBrand(input);
 
-  loadProducts(brand);
+  loadAllStores(brand);
 
 });
 
-loadProducts("comoli");
+loadAllStores("comoli");
 
 </script>
 
