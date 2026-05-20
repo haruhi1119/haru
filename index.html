@@ -41,6 +41,12 @@ header{
   box-sizing:border-box;
 }
 
+.helper{
+  margin-top:12px;
+  color:#666;
+  font-size:13px;
+}
+
 .container{
   padding:16px;
   display:grid;
@@ -153,9 +159,13 @@ BRAND STOCK
 <input
   id="search"
   class="search"
-  placeholder="ブランド名を入力"
-  value="コモリ"
+  placeholder="ブランド検索（例：comoli / オーラリー）"
+  value="comoli"
 />
+
+<div class="helper">
+自由入力検索対応
+</div>
 
 </header>
 
@@ -170,73 +180,29 @@ BRAND STOCK
 
 <script>
 
-const brands = [
+function normalizeBrand(input){
 
-  {
-    ja: "コモリ",
-    en: "comoli"
-  },
+  const map = {
 
-  {
-    ja: "オーラリー",
-    en: "auralee"
-  },
+    "コモリ": "comoli",
+    "オーラリー": "auralee",
+    "ヘリル": "herill",
+    "ナイスネス": "niceness",
+    "グラフペーパー": "graphpaper",
+    "ヨーク": "yoke",
+    "シュタイン": "stein",
+    "ブラームス": "blurhms",
+    "ユーゲン": "heugn",
+    "マーティー": "maatee-and-sons"
 
-  {
-    ja: "ヘリル",
-    en: "herill"
-  },
+  };
 
-  {
-    ja: "ナイスネス",
-    en: "niceness"
-  },
+  return (
+    map[input]
+    || input.toLowerCase()
+  );
 
-  {
-    ja: "グラフペーパー",
-    en: "graphpaper"
-  },
-
-  {
-    ja: "ヨーク",
-    en: "yoke"
-  },
-
-  {
-    ja: "シュタイン",
-    en: "stein"
-  },
-
-  {
-    ja: "ブラームス",
-    en: "blurhms"
-  },
-
-  {
-    ja: "ユーゲン",
-    en: "heugn"
-  },
-
-  {
-    ja: "マーティー",
-    en: "maatee-and-sons"
-  }
-
-];
-
-const brandMap = {};
-
-brands.forEach(brand => {
-
-  brandMap[
-    brand.ja
-  ] = brand.en;
-
-  brandMap[
-    brand.en
-  ] = brand.en;
-
-});
+}
 
 async function loadProducts(brand){
 
@@ -261,6 +227,20 @@ async function loadProducts(brand){
 
     const products =
       listData.products.slice(0, 12);
+
+    if(products.length === 0){
+
+      document
+      .getElementById("products")
+      .innerHTML = `
+        <div class="loading">
+          商品が見つかりません
+        </div>
+      `;
+
+      return;
+
+    }
 
     const cards = await Promise.all(
 
@@ -398,22 +378,10 @@ document
     e.target.value
     .trim();
 
-  const normalized =
-    input.toLowerCase();
-
   const brand =
-    brandMap[input]
-    || brandMap[normalized];
+    normalizeBrand(input);
 
-  if(brand){
-
-    loadProducts(brand);
-
-  } else {
-
-    alert("ブランド未登録");
-
-  }
+  loadProducts(brand);
 
 });
 
