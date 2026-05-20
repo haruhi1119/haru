@@ -41,6 +41,14 @@ header{
   font-size:18px;
 }
 
+.filter{
+  margin-top:14px;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  font-size:14px;
+}
+
 .helper{
   margin-top:10px;
   text-align:center;
@@ -182,6 +190,21 @@ BRAND STOCK
   value="comoli"
 />
 
+<div class="filter">
+
+  <input
+    type="checkbox"
+    id="stockOnly"
+  >
+
+  <label for="stockOnly">
+
+    在庫ありのみ表示
+
+  </label>
+
+</div>
+
 <div class="helper">
 商品横断在庫検索
 </div>
@@ -200,6 +223,8 @@ Loading...
 </div>
 
 <script>
+
+let currentProducts = [];
 
 function normalizeBrand(input){
 
@@ -242,12 +267,12 @@ async function loadProducts(brand){
   const data =
     await res.json();
 
-  const cards =
+  const products =
     await Promise.all(
 
       data.products
       .slice(0,12)
-      .map(async (item,index) => {
+      .map(async item => {
 
         const sizeRes =
           await fetch(
@@ -258,154 +283,145 @@ async function loadProducts(brand){
         const sizeData =
           await sizeRes.json();
 
-        const sizesHtml =
-          sizeData.sizes.map(size => {
+        return {
 
-            return `
+          ...item,
 
-              <div class="sizeRow">
+          sizes:
+            sizeData.sizes
 
-                <div>
-                  ${size.title}
-                </div>
+        };
 
-                <div class="${
+      })
+
+    );
+
+  currentProducts = products;
+
+  renderProducts();
+
+}
+
+function renderProducts(){
+
+  const stockOnly =
+    document
+    .getElementById("stockOnly")
+    .checked;
+
+  let products =
+    currentProducts;
+
+  if(stockOnly){
+
+    products =
+      products.filter(product => {
+
+        return product.sizes.some(
+          size => size.available
+        );
+
+      });
+
+  }
+
+  const cards =
+    products.map((item,index) => {
+
+      const sizesHtml =
+        item.sizes.map(size => {
+
+          return `
+
+            <div class="sizeRow">
+
+              <div>
+                ${size.title}
+              </div>
+
+              <div class="${
+                size.available
+                ? "ok"
+                : "sold"
+              }">
+
+                ${
                   size.available
-                  ? "ok"
-                  : "sold"
-                }">
-
-                  ${
-                    size.available
-                    ? "○"
-                    : "×"
-                  }
-
-                </div>
+                  ? "○"
+                  : "×"
+                }
 
               </div>
 
-            `;
+            </div>
 
-          }).join("");
+          `;
 
-        return `
+        }).join("");
 
-          <div class="card">
+      return `
 
-            <img src="${item.image}">
+        <div class="card">
 
-            <div class="info">
+          <img src="${item.image}">
 
-              <div class="brand">
-                ${brand.toUpperCase()}
-              </div>
+          <div class="info">
 
-              <div class="name">
-                ${item.title}
-              </div>
+            <div class="brand">
+              COVERCHORD
+            </div>
 
-              <div class="price">
-                ¥${Number(item.price).toLocaleString()}
-              </div>
+            <div class="name">
+              ${item.title}
+            </div>
 
-              <button
-                class="toggle"
-                onclick="toggleStore(${index})"
-              >
+            <div class="price">
+              ¥${Number(item.price).toLocaleString()}
+            </div>
 
-                STORE / SIZE ▼
+            <button
+              class="toggle"
+              onclick="toggleStore(${index})"
+            >
 
-              </button>
+              STORE / SIZE ▼
 
-              <div
-                id="store-${index}"
-                class="stores"
-              >
+            </button>
 
-                <div class="store">
+            <div
+              id="store-${index}"
+              class="stores"
+            >
 
-                  <div class="storeHeader">
+              <div class="store">
 
-                    <div>
-                      COVERCHORD
-                    </div>
+                <div class="storeHeader">
 
-                    <div>
-                      STOCK
-                    </div>
-
+                  <div>
+                    COVERCHORD
                   </div>
 
-                  <div class="storeSizes">
-
-                    ${sizesHtml}
-
+                  <div>
+                    STOCK
                   </div>
-
-                  <a
-                    class="link"
-                    href="https://coverchord.com/products/${item.handle}"
-                    target="_blank"
-                  >
-
-                    商品を見る
-
-                  </a>
 
                 </div>
 
-                <div class="store">
+                <div class="storeSizes">
 
-                  <div class="storeHeader">
-
-                    <div>
-                      ARKnets
-                    </div>
-
-                    <div>
-                      SEARCH
-                    </div>
-
-                  </div>
-
-                  <a
-                    class="link"
-                    href="https://www.arknets.co.jp/goods_list/?keyword=${brand}"
-                    target="_blank"
-                  >
-
-                    ARKnetsで検索
-
-                  </a>
+                  ${sizesHtml}
 
                 </div>
 
-                <div class="store">
+                <a
+                  class="link"
+                  href="https://coverchord.com/products/${item.handle}"
+                  target="_blank"
+                >
 
-                  <div class="storeHeader">
+                  商品を見る
 
-                    <div>
-                      CIACURA
-                    </div>
-
-                    <div>
-                      SEARCH
-                    </div>
-
-                  </div>
-
-                  <a
-                    class="link"
-                    href="https://shop.ciacura.jp/search?q=${brand}"
-                    target="_blank"
-                  >
-
-                    CIACURAで検索
-
-                  </a>
-
-                </div>
+                </a>
 
               </div>
 
@@ -413,16 +429,16 @@ async function loadProducts(brand){
 
           </div>
 
-        `;
+        </div>
 
-      })
+      `;
 
-    );
+    }).join("");
 
   document
   .getElementById("products")
   .innerHTML =
-    cards.join("");
+    cards;
 
 }
 
@@ -448,6 +464,14 @@ document
     normalizeBrand(input);
 
   loadProducts(brand);
+
+});
+
+document
+.getElementById("stockOnly")
+.addEventListener("change", () => {
+
+  renderProducts();
 
 });
 
