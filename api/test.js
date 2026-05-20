@@ -5,9 +5,20 @@ export default async function handler(req, res) {
     const brand =
       req.query.brand || "comoli";
 
-    const response = await fetch(
-      `https://coverchord.com/collections/${brand}/products.json?limit=20`
-    );
+    const store =
+      req.query.store || "coverchord";
+
+    let url = "";
+
+    if(store === "coverchord"){
+
+      url =
+        `https://coverchord.com/collections/${brand}/products.json?limit=20`;
+
+    }
+
+    const response =
+      await fetch(url);
 
     const data =
       await response.json();
@@ -15,15 +26,19 @@ export default async function handler(req, res) {
     const products =
       data.products.map(product => ({
 
-        title: product.title,
+        title:
+          product.title,
 
-        handle: product.handle,
+        handle:
+          product.handle,
 
         price:
           product.variants?.[0]?.price,
 
         image:
-          product.images?.[0]?.src
+          product.images?.[0]?.src,
+
+        store
 
       }));
 
@@ -32,6 +47,8 @@ export default async function handler(req, res) {
       success: true,
 
       brand,
+
+      store,
 
       count: products.length,
 
