@@ -30,7 +30,7 @@ header{
 
 .logo{
   text-align:center;
-  font-size:38px;
+  font-size:42px;
   font-weight:900;
   letter-spacing:4px;
   margin-bottom:18px;
@@ -43,6 +43,7 @@ header{
   border-radius:16px;
   padding:18px;
   font-size:17px;
+  outline:none;
 }
 
 .filters{
@@ -69,7 +70,7 @@ header{
 
 .card{
   background:white;
-  border-radius:18px;
+  border-radius:20px;
   overflow:hidden;
   box-shadow:0 2px 10px rgba(0,0,0,.06);
 }
@@ -105,6 +106,7 @@ header{
   font-size:10px;
   color:#888;
   margin-bottom:4px;
+  text-transform:uppercase;
 }
 
 .name{
@@ -112,12 +114,12 @@ header{
   line-height:1.45;
   font-weight:700;
   margin-bottom:10px;
-  min-height:42px;
+  min-height:44px;
 }
 
 .price{
-  font-size:18px;
-  font-weight:800;
+  font-size:20px;
+  font-weight:900;
   margin-bottom:12px;
 }
 
@@ -223,7 +225,22 @@ header{
   grid-column:1/3;
   padding:120px 20px;
   text-align:center;
-  font-size:22px;
+}
+
+.spinner{
+  width:44px;
+  height:44px;
+  border:4px solid #ddd;
+  border-top:4px solid black;
+  border-radius:50%;
+  margin:0 auto 16px;
+  animation:spin 1s linear infinite;
+}
+
+@keyframes spin{
+  to{
+    transform:rotate(360deg);
+  }
 }
 
 .empty{
@@ -269,7 +286,7 @@ BRAND STOCK
 
 <div class="helper">
 
-  商品横断在庫検索
+  COMOLI / AURALEE / HERILL / blurhms / YOKE / Stein
 
 </div>
 
@@ -281,6 +298,8 @@ BRAND STOCK
 >
 
   <div class="loading">
+
+    <div class="spinner"></div>
 
     Loading...
 
@@ -302,7 +321,9 @@ function normalizeBrand(input){
     "ブラームス":"blurhms",
     "グラフペーパー":"graphpaper",
     "ヨーク":"yoke",
-    "シュタイン":"stein"
+    "シュタイン":"stein",
+    "メイツ":"maatee&sons",
+    "メイティー":"maatee&sons"
 
   };
 
@@ -321,6 +342,8 @@ async function loadProducts(brand){
 
     <div class="loading">
 
+      <div class="spinner"></div>
+
       ${brand.toUpperCase()}
       loading...
 
@@ -328,53 +351,71 @@ async function loadProducts(brand){
 
   `;
 
-  const res =
-    await fetch(
-      `./api/test?store=coverchord&brand=${brand}`
-    );
+  try{
 
-  const data =
-    await res.json();
+    const res =
+      await fetch(
+        `./api/test?store=coverchord&brand=${brand}`
+      );
 
-  const products =
-    await Promise.all(
+    const data =
+      await res.json();
 
-      data.products
-      .slice(0,12)
-      .map(async item => {
+    const products =
+      await Promise.all(
 
-        const sizeRes =
-          await fetch(
-            "./api/product?handle=" +
-            item.handle
-          );
+        data.products
+        .slice(0,30)
+        .map(async item => {
 
-        const sizeData =
-          await sizeRes.json();
+          const sizeRes =
+            await fetch(
+              "./api/product?handle=" +
+              item.handle
+            );
 
-        const inStock =
-          sizeData.sizes.some(
-            size => size.available
-          );
+          const sizeData =
+            await sizeRes.json();
 
-        return {
+          const inStock =
+            sizeData.sizes.some(
+              size => size.available
+            );
 
-          ...item,
+          return {
 
-          inStock,
+            ...item,
 
-          sizes:
-            sizeData.sizes
+            inStock,
 
-        };
+            sizes:
+              sizeData.sizes
 
-      })
+          };
 
-    );
+        })
 
-  allProducts = products;
+      );
 
-  renderProducts();
+    allProducts = products;
+
+    renderProducts();
+
+  }catch(error){
+
+    document
+    .getElementById("products")
+    .innerHTML = `
+
+      <div class="empty">
+
+        Error
+
+      </div>
+
+    `;
+
+  }
 
 }
 
