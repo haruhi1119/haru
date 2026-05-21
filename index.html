@@ -82,6 +82,7 @@ header{
   width:100%;
   aspect-ratio:1/1.25;
   object-fit:cover;
+  background:#eee;
 }
 
 .stockBadge{
@@ -111,6 +112,7 @@ header{
   line-height:1.45;
   font-weight:700;
   margin-bottom:10px;
+  min-height:42px;
 }
 
 .price{
@@ -132,15 +134,33 @@ header{
 .detail{
   display:none;
   margin-top:12px;
+  animation:fade .2s ease;
 }
 
 .detail.open{
   display:block;
 }
 
+@keyframes fade{
+
+  from{
+    opacity:0;
+    transform:translateY(-4px);
+  }
+
+  to{
+    opacity:1;
+    transform:none;
+  }
+
+}
+
 .store{
-  border-top:1px solid #eee;
-  padding:12px 0;
+  border:1px solid #eee;
+  border-radius:14px;
+  padding:12px;
+  margin-top:12px;
+  background:#fafafa;
 }
 
 .storeTop{
@@ -189,9 +209,14 @@ header{
   background:black;
   color:white;
   border-radius:10px;
-  padding:10px;
+  padding:12px;
   font-size:12px;
   font-weight:700;
+  transition:.2s;
+}
+
+.link:active{
+  transform:scale(.98);
 }
 
 .loading{
