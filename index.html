@@ -473,7 +473,7 @@ function renderProducts(){
 
             <div class="brand">
 
-              COVERCHORD
+              ${item.vendor || "BRAND"}
 
             </div>
 
@@ -544,18 +544,18 @@ function renderProducts(){
                   </div>
 
                   <div class="storeType">
-                    SHOP
+                    SEARCH
                   </div>
 
                 </div>
 
                 <a
                   class="link"
-                  href="https://www.arknets.co.jp/"
+                  href="https://www.arknets.co.jp/goods_search/?keyword=${encodeURIComponent(item.title)}"
                   target="_blank"
                 >
 
-                  ARKnetsを見る
+                  ARKnetsで検索
 
                 </a>
 
