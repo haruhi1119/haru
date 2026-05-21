@@ -1,229 +1,110 @@
-const stores = [
-
-  {
-    id: "coverchord",
-
-    type: "shopify",
-
-    baseUrl:
-      "https://coverchord.com",
-
-    collectionUrl:
-      "https://coverchord.com/collections/"
-  },
-
-  {
-    id: "arknets",
-
-    type: "shopify",
-
-    baseUrl:
-      "https://www.arknets.co.jp",
-
-    collectionUrl:
-      "https://www.arknets.co.jp/goods_list/"
-  },
-
-  {
-    id: "ciacura",
-
-    type: "search",
-
-    baseUrl:
-      "https://shop.ciacura.jp",
-
-    searchUrl:
-      "https://shop.ciacura.jp/search?q="
-  },
-
-  {
-    id: "digitalmountain",
-
-    type: "html",
-
-    baseUrl:
-      "https://digital-mountain.net"
-  }
-
-];
-
 export default async function handler(req, res) {
 
-  try {
+  const {
+    brand = "comoli",
+    store = "coverchord"
+  } = req.query;
 
-    const brand =
-      req.query.brand || "comoli";
+  const stores = {
 
-    const storeId =
-      req.query.store || "coverchord";
+    coverchord: {
+      type: "shopify",
+      url:
+        "https://coverchord.com/products.json?limit=250"
+    },
 
-    const store =
-      stores.find(
-        s => s.id === storeId
+    ciacura: {
+      type: "search",
+      searchUrl:
+        `https://shop.ciacura.jp/search?q=${brand}`
+    },
+
+    arknets: {
+      type: "shop",
+      searchUrl:
+        "https://www.arknets.co.jp/"
+    }
+
+  };
+
+  const targetStore =
+    stores[store];
+
+  if(!targetStore){
+
+    return res.status(404).json({
+      error: "store not found"
+    });
+
+  }
+
+  if(targetStore.type !== "shopify"){
+
+    return res.status(200).json({
+
+      success: true,
+
+      store,
+
+      type: targetStore.type,
+
+      searchUrl:
+        targetStore.searchUrl
+
+    });
+
+  }
+
+  try{
+
+    const response =
+      await fetch(
+        targetStore.url
       );
 
-    if(!store){
+    const data =
+      await response.json();
 
-      return res.status(404).json({
+    const products =
+      data.products.filter(product => {
 
-        success: false,
+        const text = [
 
-        error: "store not found"
+          product.title,
 
-      });
+          product.vendor,
 
-    }
+          ...(product.tags || [])
 
-    if(store.id === "coverchord"){
+        ]
+        .join(" ")
+        .toLowerCase();
 
-      const url =
-
-        `${store.collectionUrl}${brand}/products.json?limit=20`;
-
-      const response =
-        await fetch(url);
-
-      const data =
-        await response.json();
-
-      const products =
-        data.products.map(product => ({
-
-          id:
-            product.id,
-
-          title:
-            product.title,
-
-          handle:
-            product.handle,
-
-          vendor:
-            product.vendor,
-
-          type:
-            product.product_type,
-
-          tags:
-            product.tags,
-
-          price:
-            product.variants?.[0]?.price,
-
-          image:
-            product.images?.[0]?.src,
-
-          variants:
-            product.variants.map(v => ({
-
-              id:
-                v.id,
-
-              title:
-                v.title,
-
-              sku:
-                v.sku,
-
-              available:
-                v.available
-
-            })),
-
-          store:
-            store.id
-
-        }));
-
-      return res.status(200).json({
-
-        success: true,
-
-        brand,
-
-        store:
-          store.id,
-
-        type:
-          store.type,
-
-        count:
-          products.length,
-
-        products
+        return text.includes(
+          brand.toLowerCase()
+        );
 
       });
 
-    }
+    return res.status(200).json({
 
-    if(store.id === "arknets"){
+      success: true,
 
-      return res.status(200).json({
+      store,
 
-        success: true,
+      type: "shopify",
 
-        store:
-          store.id,
+      count: products.length,
 
-        type:
-          store.type,
+      products
 
-        message:
-          "arknets prepared"
+    });
 
-      });
+  }catch(error){
 
-    }
+    return res.status(500).json({
 
-    if(store.type === "search"){
-
-      return res.status(200).json({
-
-        success: true,
-
-        store:
-          store.id,
-
-        type:
-          store.type,
-
-        message:
-          "search type store",
-
-        searchUrl:
-          `${store.searchUrl}${brand}`
-
-      });
-
-    }
-
-    if(store.type === "html"){
-
-      return res.status(200).json({
-
-        success: true,
-
-        store:
-          store.id,
-
-        type:
-          store.type,
-
-        message:
-          "html scraping store"
-
-      });
-
-    }
-
-  } catch (error) {
-
-    res.status(500).json({
-
-      success: false,
-
-      error:
-        error.message
+      error: error.message
 
     });
 
