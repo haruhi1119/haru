@@ -430,7 +430,7 @@ function renderProducts(){
 
           <div class="imageWrap">
 
-            <img src="${item.image}">
+            <img src="${item.images?.[0]?.src || ''}">
 
             ${
               item.inStock
@@ -460,7 +460,7 @@ function renderProducts(){
 
             <div class="price">
 
-              ¥${Number(item.price).toLocaleString()}
+              ¥${Number(item.variants?.[0]?.price || 0).toLocaleString()}
 
             </div>
 
