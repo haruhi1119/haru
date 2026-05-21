@@ -123,13 +123,6 @@ header{
   margin-bottom:12px;
 }
 
-.matchKey{
-  font-size:10px;
-  color:#aaa;
-  margin-bottom:10px;
-  word-break:break-all;
-}
-
 .toggle{
   width:100%;
   border:none;
@@ -221,11 +214,6 @@ header{
   padding:12px;
   font-size:12px;
   font-weight:700;
-  transition:.2s;
-}
-
-.link:active{
-  transform:scale(.98);
 }
 
 .loading{
@@ -256,6 +244,12 @@ header{
   text-align:center;
   font-size:18px;
   color:#777;
+}
+
+.groupLabel{
+  font-size:10px;
+  color:#aaa;
+  margin-bottom:10px;
 }
 
 </style>
@@ -355,6 +349,41 @@ function normalizeProductName(name){
 
 }
 
+function groupProducts(products){
+
+  const grouped = {};
+
+  products.forEach(product => {
+
+    if(!grouped[product.matchKey]){
+
+      grouped[product.matchKey] = {
+
+        ...product,
+
+        stores:[]
+      };
+
+    }
+
+    grouped[product.matchKey]
+    .stores
+    .push({
+
+      store:"COVERCHORD",
+
+      handle:product.handle,
+
+      sizes:product.sizes
+
+    });
+
+  });
+
+  return Object.values(grouped);
+
+}
+
 async function loadProducts(brand){
 
   document
@@ -423,7 +452,8 @@ async function loadProducts(brand){
 
       );
 
-    allProducts = products;
+    allProducts =
+      groupProducts(products);
 
     renderProducts();
 
@@ -485,30 +515,75 @@ function renderProducts(){
   const html =
     products.map((item,index) => {
 
-      const sizesHtml =
-        item.sizes.map(size => {
+      const storesHtml =
+        item.stores.map(store => {
+
+          const sizesHtml =
+            store.sizes.map(size => {
+
+              return `
+
+                <div class="size">
+
+                  <div>
+                    ${size.title}
+                  </div>
+
+                  <div class="${
+                    size.available
+                    ? "ok"
+                    : "sold"
+                  }">
+
+                    ${
+                      size.available
+                      ? "○"
+                      : "×"
+                    }
+
+                  </div>
+
+                </div>
+
+              `;
+
+            }).join("");
 
           return `
 
-            <div class="size">
+            <div class="store">
 
-              <div>
-                ${size.title}
-              </div>
+              <div class="storeTop">
 
-              <div class="${
-                size.available
-                ? "ok"
-                : "sold"
-              }">
+                <div class="storeName">
 
-                ${
-                  size.available
-                  ? "○"
-                  : "×"
-                }
+                  ${store.store}
+
+                </div>
+
+                <div class="storeType">
+
+                  STOCK
+
+                </div>
 
               </div>
+
+              <div class="sizes">
+
+                ${sizesHtml}
+
+              </div>
+
+              <a
+                class="link"
+                href="https://coverchord.com/products/${store.handle}"
+                target="_blank"
+              >
+
+                商品を見る
+
+              </a>
 
             </div>
 
@@ -556,7 +631,7 @@ function renderProducts(){
 
             </div>
 
-            <div class="matchKey">
+            <div class="groupLabel">
 
               ${item.matchKey}
 
@@ -576,37 +651,7 @@ function renderProducts(){
               class="detail"
             >
 
-              <div class="store">
-
-                <div class="storeTop">
-
-                  <div class="storeName">
-                    COVERCHORD
-                  </div>
-
-                  <div class="storeType">
-                    STOCK
-                  </div>
-
-                </div>
-
-                <div class="sizes">
-
-                  ${sizesHtml}
-
-                </div>
-
-                <a
-                  class="link"
-                  href="https://coverchord.com/products/${item.handle}"
-                  target="_blank"
-                >
-
-                  COVERCHORDで見る
-
-                </a>
-
-              </div>
+              ${storesHtml}
 
               <div class="store">
 
