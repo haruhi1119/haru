@@ -123,6 +123,13 @@ header{
   margin-bottom:12px;
 }
 
+.matchKey{
+  font-size:10px;
+  color:#aaa;
+  margin-bottom:10px;
+  word-break:break-all;
+}
+
 .toggle{
   width:100%;
   border:none;
@@ -286,7 +293,7 @@ BRAND STOCK
 
 <div class="helper">
 
-  COMOLI / AURALEE / HERILL / blurhms / YOKE / Stein
+  商品横断在庫検索
 
 </div>
 
@@ -331,6 +338,20 @@ function normalizeBrand(input){
     map[input]
     || input.toLowerCase()
   );
+
+}
+
+function normalizeProductName(name){
+
+  return name
+    .toLowerCase()
+    .replace(/\s/g,"")
+    .replace(/-/g,"")
+    .replace(/\//g,"")
+    .replace(/_/g,"")
+    .replace(/[()]/g,"")
+    .replace(/[【】]/g,"")
+    .replace(/[・]/g,"");
 
 }
 
@@ -387,6 +408,11 @@ async function loadProducts(brand){
             ...item,
 
             inStock,
+
+            matchKey:
+              normalizeProductName(
+                item.title
+              ),
 
             sizes:
               sizeData.sizes
@@ -527,6 +553,12 @@ function renderProducts(){
             <div class="price">
 
               ¥${Number(item.variants?.[0]?.price || 0).toLocaleString()}
+
+            </div>
+
+            <div class="matchKey">
+
+              ${item.matchKey}
 
             </div>
 
