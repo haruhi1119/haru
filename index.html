@@ -526,7 +526,7 @@ function renderProducts(){
 
                 <a
                   class="link"
-                  href="https://www.arknets.co.jp/goods_list/?keyword=${encodeURIComponent(item.title)}"
+                  href="https://www.arknets.co.jp/search/?q=${encodeURIComponent(item.title)}"
                   target="_blank"
                 >
 
@@ -601,6 +601,14 @@ document
     normalizeBrand(input);
 
   loadProducts(brand);
+
+});
+
+document
+.getElementById("search")
+.addEventListener("focus", e => {
+
+  e.target.select();
 
 });
 
