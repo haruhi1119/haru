@@ -20,9 +20,9 @@ export default async function handler(req, res) {
     },
 
     arknets: {
-      type: "shop",
+      type: "html",
       searchUrl:
-        "https://www.arknets.co.jp/"
+        `https://www.arknets.co.jp/search/?q=${brand}`
     }
 
   };
@@ -38,15 +38,72 @@ export default async function handler(req, res) {
 
   }
 
-  if(targetStore.type !== "shopify"){
+  if(targetStore.type === "shopify"){
+
+    try{
+
+      const response =
+        await fetch(
+          targetStore.url
+        );
+
+      const data =
+        await response.json();
+
+      const products =
+        data.products.filter(product => {
+
+          const text = [
+
+            product.title,
+
+            product.vendor,
+
+            ...(product.tags || [])
+
+          ]
+          .join(" ")
+          .toLowerCase();
+
+          return text.includes(
+            brand.toLowerCase()
+          );
+
+        });
+
+      return res.status(200).json({
+
+        success: true,
+
+        store,
+
+        type: "shopify",
+
+        count: products.length,
+
+        products
+
+      });
+
+    }catch(error){
+
+      return res.status(500).json({
+        error:error.message
+      });
+
+    }
+
+  }
+
+  if(targetStore.type === "search"){
 
     return res.status(200).json({
 
-      success: true,
+      success:true,
+
+      type:"search",
 
       store,
-
-      type: targetStore.type,
 
       searchUrl:
         targetStore.searchUrl
@@ -55,58 +112,47 @@ export default async function handler(req, res) {
 
   }
 
-  try{
+  if(targetStore.type === "html"){
 
-    const response =
-      await fetch(
-        targetStore.url
-      );
+    try{
 
-    const data =
-      await response.json();
+      const response =
+        await fetch(
+          targetStore.searchUrl
+        );
 
-    const products =
-      data.products.filter(product => {
+      const html =
+        await response.text();
 
-        const text = [
-
-          product.title,
-
-          product.vendor,
-
-          ...(product.tags || [])
-
-        ]
-        .join(" ")
-        .toLowerCase();
-
-        return text.includes(
+      const hasBrand =
+        html
+        .toLowerCase()
+        .includes(
           brand.toLowerCase()
         );
 
+      return res.status(200).json({
+
+        success:true,
+
+        type:"html",
+
+        store,
+
+        hasBrand,
+
+        searchUrl:
+          targetStore.searchUrl
+
       });
 
-    return res.status(200).json({
+    }catch(error){
 
-      success: true,
+      return res.status(500).json({
+        error:error.message
+      });
 
-      store,
-
-      type: "shopify",
-
-      count: products.length,
-
-      products
-
-    });
-
-  }catch(error){
-
-    return res.status(500).json({
-
-      error: error.message
-
-    });
+    }
 
   }
 
