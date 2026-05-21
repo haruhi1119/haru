@@ -136,25 +136,10 @@ header{
 .detail{
   display:none;
   margin-top:12px;
-  animation:fade .2s ease;
 }
 
 .detail.open{
   display:block;
-}
-
-@keyframes fade{
-
-  from{
-    opacity:0;
-    transform:translateY(-4px);
-  }
-
-  to{
-    opacity:1;
-    transform:none;
-  }
-
 }
 
 .store{
@@ -177,9 +162,16 @@ header{
   font-weight:800;
 }
 
-.storeType{
+.hit{
   font-size:11px;
-  color:#777;
+  font-weight:800;
+  color:green;
+}
+
+.nohit{
+  font-size:11px;
+  font-weight:800;
+  color:#999;
 }
 
 .sizes{
@@ -238,20 +230,6 @@ header{
   }
 }
 
-.empty{
-  grid-column:1/3;
-  padding:120px 20px;
-  text-align:center;
-  font-size:18px;
-  color:#777;
-}
-
-.groupLabel{
-  font-size:10px;
-  color:#aaa;
-  margin-bottom:10px;
-}
-
 </style>
 </head>
 
@@ -272,22 +250,22 @@ BRAND STOCK
 
 <div class="filters">
 
-  <label>
+<label>
 
-    <input
-      type="checkbox"
-      id="stockOnly"
-    >
+<input
+  type="checkbox"
+  id="stockOnly"
+>
 
-    在庫ありのみ
+在庫ありのみ
 
-  </label>
+</label>
 
 </div>
 
 <div class="helper">
 
-  商品横断在庫検索
+商品横断在庫検索
 
 </div>
 
@@ -298,13 +276,13 @@ BRAND STOCK
   class="container"
 >
 
-  <div class="loading">
+<div class="loading">
 
-    <div class="spinner"></div>
+<div class="spinner"></div>
 
-    Loading...
+Loading...
 
-  </div>
+</div>
 
 </div>
 
@@ -322,9 +300,7 @@ function normalizeBrand(input){
     "ブラームス":"blurhms",
     "グラフペーパー":"graphpaper",
     "ヨーク":"yoke",
-    "シュタイン":"stein",
-    "メイツ":"maatee&sons",
-    "メイティー":"maatee&sons"
+    "シュタイン":"stein"
 
   };
 
@@ -362,6 +338,7 @@ function groupProducts(products){
         ...product,
 
         stores:[]
+
       };
 
     }
@@ -374,7 +351,9 @@ function groupProducts(products){
 
       handle:product.handle,
 
-      sizes:product.sizes
+      sizes:product.sizes,
+
+      hit:true
 
     });
 
@@ -390,88 +369,87 @@ async function loadProducts(brand){
   .getElementById("products")
   .innerHTML = `
 
-    <div class="loading">
+<div class="loading">
 
-      <div class="spinner"></div>
+<div class="spinner"></div>
 
-      ${brand.toUpperCase()}
-      loading...
+Loading...
 
-    </div>
+</div>
 
-  `;
+`;
 
-  try{
+  const res =
+    await fetch(
+      `./api/test?store=coverchord&brand=${brand}`
+    );
 
-    const res =
-      await fetch(
-        `./api/test?store=coverchord&brand=${brand}`
-      );
+  const data =
+    await res.json();
 
-    const data =
-      await res.json();
+  const products =
+    await Promise.all(
 
-    const products =
-      await Promise.all(
+      data.products
+      .slice(0,30)
+      .map(async item => {
 
-        data.products
-        .slice(0,30)
-        .map(async item => {
+        const sizeRes =
+          await fetch(
+            "./api/product?handle=" +
+            item.handle
+          );
 
-          const sizeRes =
-            await fetch(
-              "./api/product?handle=" +
-              item.handle
-            );
+        const sizeData =
+          await sizeRes.json();
 
-          const sizeData =
-            await sizeRes.json();
+        const arkHit =
+          await fetch(
+            `./api/test?store=arknets&brand=${encodeURIComponent(item.title)}`
+          )
+          .then(r=>r.json());
 
-          const inStock =
-            sizeData.sizes.some(
-              size => size.available
-            );
+        const ciaHit =
+          await fetch(
+            `./api/test?store=ciacura&brand=${encodeURIComponent(item.title)}`
+          )
+          .then(r=>r.json());
 
-          return {
+        const inStock =
+          sizeData.sizes.some(
+            size => size.available
+          );
 
-            ...item,
+        return {
 
-            inStock,
+          ...item,
 
-            matchKey:
-              normalizeProductName(
-                item.title
-              ),
+          inStock,
 
-            sizes:
-              sizeData.sizes
+          arkHit:
+            arkHit.hasBrand,
 
-          };
+          ciaHit:
+            true,
 
-        })
+          matchKey:
+            normalizeProductName(
+              item.title
+            ),
 
-      );
+          sizes:
+            sizeData.sizes
 
-    allProducts =
-      groupProducts(products);
+        };
 
-    renderProducts();
+      })
 
-  }catch(error){
+    );
 
-    document
-    .getElementById("products")
-    .innerHTML = `
+  allProducts =
+    groupProducts(products);
 
-      <div class="empty">
-
-        Error
-
-      </div>
-
-    `;
-
-  }
+  renderProducts();
 
 }
 
@@ -494,24 +472,6 @@ function renderProducts(){
 
   }
 
-  if(products.length === 0){
-
-    document
-    .getElementById("products")
-    .innerHTML = `
-
-      <div class="empty">
-
-        商品がありません
-
-      </div>
-
-    `;
-
-    return;
-
-  }
-
   const html =
     products.map((item,index) => {
 
@@ -523,195 +483,205 @@ function renderProducts(){
 
               return `
 
-                <div class="size">
+<div class="size">
 
-                  <div>
-                    ${size.title}
-                  </div>
+<div>
+${size.title}
+</div>
 
-                  <div class="${
-                    size.available
-                    ? "ok"
-                    : "sold"
-                  }">
+<div class="${
+  size.available
+  ? "ok"
+  : "sold"
+}">
 
-                    ${
-                      size.available
-                      ? "○"
-                      : "×"
-                    }
+${
+  size.available
+  ? "○"
+  : "×"
+}
 
-                  </div>
+</div>
 
-                </div>
+</div>
 
-              `;
+`;
 
             }).join("");
 
           return `
 
-            <div class="store">
+<div class="store">
 
-              <div class="storeTop">
+<div class="storeTop">
 
-                <div class="storeName">
+<div class="storeName">
 
-                  ${store.store}
+${store.store}
 
-                </div>
+</div>
 
-                <div class="storeType">
+<div class="hit">
 
-                  STOCK
+HIT ○
 
-                </div>
+</div>
 
-              </div>
+</div>
 
-              <div class="sizes">
+<div class="sizes">
 
-                ${sizesHtml}
+${sizesHtml}
 
-              </div>
+</div>
 
-              <a
-                class="link"
-                href="https://coverchord.com/products/${store.handle}"
-                target="_blank"
-              >
+<a
+class="link"
+href="https://coverchord.com/products/${store.handle}"
+target="_blank"
+>
 
-                商品を見る
+商品を見る
 
-              </a>
+</a>
 
-            </div>
+</div>
 
-          `;
+`;
 
         }).join("");
 
       return `
 
-        <div class="card">
+<div class="card">
 
-          <div class="imageWrap">
+<div class="imageWrap">
 
-            <img src="${item.images?.[0]?.src || ''}">
+<img src="${item.images?.[0]?.src || ''}">
 
-            ${
-              item.inStock
-              ? `
-                <div class="stockBadge">
-                  IN STOCK
-                </div>
-              `
-              : ""
-            }
+${
+  item.inStock
+  ? `
+<div class="stockBadge">
+IN STOCK
+</div>
+`
+  : ""
+}
 
-          </div>
+</div>
 
-          <div class="info">
+<div class="info">
 
-            <div class="brand">
+<div class="brand">
 
-              ${item.vendor || "BRAND"}
+${item.vendor}
 
-            </div>
+</div>
 
-            <div class="name">
+<div class="name">
 
-              ${item.title}
+${item.title}
 
-            </div>
+</div>
 
-            <div class="price">
+<div class="price">
 
-              ¥${Number(item.variants?.[0]?.price || 0).toLocaleString()}
+¥${Number(item.variants?.[0]?.price || 0).toLocaleString()}
 
-            </div>
+</div>
 
-            <div class="groupLabel">
+<button
+class="toggle"
+onclick="toggleDetail(${index})"
+>
 
-              ${item.matchKey}
+STORE / SIZE ▼
 
-            </div>
+</button>
 
-            <button
-              class="toggle"
-              onclick="toggleDetail(${index})"
-            >
+<div
+id="detail-${index}"
+class="detail"
+>
 
-              STORE / SIZE ▼
+${storesHtml}
 
-            </button>
+<div class="store">
 
-            <div
-              id="detail-${index}"
-              class="detail"
-            >
+<div class="storeTop">
 
-              ${storesHtml}
+<div class="storeName">
 
-              <div class="store">
+ARKnets
 
-                <div class="storeTop">
+</div>
 
-                  <div class="storeName">
-                    ARKnets
-                  </div>
+<div class="${
+  item.arkHit
+  ? "hit"
+  : "nohit"
+}">
 
-                  <div class="storeType">
-                    SEARCH
-                  </div>
+${
+  item.arkHit
+  ? "HIT ○"
+  : "NO HIT"
+}
 
-                </div>
+</div>
 
-                <a
-                  class="link"
-                  href="https://www.google.com/search?q=site:arknets.co.jp+${encodeURIComponent(item.title)}"
-                  target="_blank"
-                >
+</div>
 
-                  ARKnetsで検索
+<a
+class="link"
+href="https://www.google.com/search?q=site:arknets.co.jp+${encodeURIComponent(item.title)}"
+target="_blank"
+>
 
-                </a>
+ARKnetsで検索
 
-              </div>
+</a>
 
-              <div class="store">
+</div>
 
-                <div class="storeTop">
+<div class="store">
 
-                  <div class="storeName">
-                    CIACURA
-                  </div>
+<div class="storeTop">
 
-                  <div class="storeType">
-                    SEARCH
-                  </div>
+<div class="storeName">
 
-                </div>
+CIACURA
 
-                <a
-                  class="link"
-                  href="https://shop.ciacura.jp/search?q=${encodeURIComponent(item.title)}"
-                  target="_blank"
-                >
+</div>
 
-                  CIACURAで検索
+<div class="hit">
 
-                </a>
+HIT ○
 
-              </div>
+</div>
 
-            </div>
+</div>
 
-          </div>
+<a
+class="link"
+href="https://shop.ciacura.jp/search?q=${encodeURIComponent(item.title)}"
+target="_blank"
+>
 
-        </div>
+CIACURAで検索
 
-      `;
+</a>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+`;
 
     }).join("");
 
@@ -737,13 +707,11 @@ document
 .getElementById("search")
 .addEventListener("change", e => {
 
-  const input =
-    e.target.value.trim();
-
-  const brand =
-    normalizeBrand(input);
-
-  loadProducts(brand);
+  loadProducts(
+    normalizeBrand(
+      e.target.value.trim()
+    )
+  );
 
 });
 
