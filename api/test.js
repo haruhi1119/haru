@@ -13,6 +13,12 @@ export default async function handler(req, res) {
         "https://coverchord.com/products.json?limit=250"
     },
 
+    diverse: {
+      type: "shopify",
+      url:
+        "https://diverse-web.com/products.json?limit=250"
+    },
+
     ciacura: {
       type: "search",
       searchUrl:
@@ -33,7 +39,7 @@ export default async function handler(req, res) {
   if(!targetStore){
 
     return res.status(404).json({
-      error: "store not found"
+      error:"store not found"
     });
 
   }
@@ -73,13 +79,13 @@ export default async function handler(req, res) {
 
       return res.status(200).json({
 
-        success: true,
+        success:true,
 
         store,
 
-        type: "shopify",
+        type:"shopify",
 
-        count: products.length,
+        count:products.length,
 
         products
 
