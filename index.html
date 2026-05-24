@@ -15,8 +15,8 @@ box-sizing:border-box;
 body{
 margin:0;
 background:#f5f5f5;
-color:#111;
 font-family:-apple-system,BlinkMacSystemFont,sans-serif;
+color:#111;
 }
 
 header{
@@ -24,8 +24,8 @@ position:sticky;
 top:0;
 z-index:100;
 background:white;
+padding:34px 18px 20px;
 border-bottom:1px solid #eee;
-padding:36px 18px 20px;
 }
 
 .logo{
@@ -48,17 +48,14 @@ outline:none;
 
 .filters{
 margin-top:14px;
-display:flex;
-gap:16px;
-align-items:center;
 font-size:13px;
 }
 
 .helper{
 margin-top:12px;
-color:#888;
 text-align:center;
 font-size:11px;
+color:#999;
 }
 
 .container{
@@ -70,7 +67,7 @@ gap:14px;
 
 .card{
 background:white;
-border-radius:20px;
+border-radius:22px;
 overflow:hidden;
 box-shadow:0 2px 10px rgba(0,0,0,.06);
 }
@@ -110,34 +107,27 @@ text-transform:uppercase;
 }
 
 .name{
-font-size:14px;
+font-size:15px;
+font-weight:800;
 line-height:1.45;
-font-weight:700;
 margin-bottom:10px;
-min-height:44px;
+min-height:46px;
 }
 
 .price{
-font-size:20px;
+font-size:22px;
 font-weight:900;
 margin-bottom:12px;
-}
-
-.match{
-font-size:10px;
-color:#999;
-margin-bottom:10px;
-word-break:break-all;
 }
 
 .toggle{
 width:100%;
 border:none;
 background:#f4f4f4;
-border-radius:12px;
-padding:12px;
+border-radius:14px;
+padding:14px;
 font-size:13px;
-font-weight:700;
+font-weight:800;
 }
 
 .detail{
@@ -149,68 +139,57 @@ margin-top:12px;
 display:block;
 }
 
-.store{
+.sizeBlock{
 border:1px solid #eee;
-border-radius:14px;
+border-radius:16px;
 padding:12px;
 margin-top:12px;
 background:#fafafa;
 }
 
-.storeTop{
-display:flex;
-justify-content:space-between;
-align-items:center;
+.sizeTitle{
+font-size:14px;
+font-weight:900;
 margin-bottom:10px;
 }
 
-.storeName{
-font-size:13px;
-font-weight:800;
-}
-
-.hit{
-font-size:11px;
-font-weight:800;
-color:green;
-}
-
-.nohit{
-font-size:11px;
-font-weight:800;
-color:#999;
-}
-
-.sizes{
-display:flex;
-flex-direction:column;
-gap:6px;
-}
-
-.size{
+.storeRow{
 display:flex;
 justify-content:space-between;
-font-size:12px;
+align-items:center;
+padding:10px 0;
+border-top:1px solid #eee;
+font-size:13px;
+}
+
+.storeRow:first-child{
+border-top:none;
+padding-top:0;
+}
+
+.storeName{
+font-weight:800;
 }
 
 .ok{
 color:green;
-font-weight:700;
+font-weight:900;
 }
 
-.sold{
-color:#999;
+.ng{
+color:#aaa;
+font-weight:700;
 }
 
 .link{
 display:block;
 margin-top:10px;
-text-align:center;
-text-decoration:none;
+padding:12px;
+border-radius:12px;
 background:black;
 color:white;
-border-radius:10px;
-padding:12px;
+text-align:center;
+text-decoration:none;
 font-size:12px;
 font-weight:700;
 }
@@ -272,7 +251,7 @@ id="stockOnly"
 
 <div class="helper">
 
-商品横断在庫検索
+サイズ横断在庫検索
 
 </div>
 
@@ -334,36 +313,8 @@ return name
 
 function createMatchKey(name){
 
-const normalized =
-normalizeProductName(name);
-
-const words = [
-
-"シャツ",
-"ジャケット",
-"ブルゾン",
-"Tシャツ",
-"TEE",
-"パンツ",
-"SHORTS",
-"CAP",
-"HAT"
-
-];
-
-let key = normalized;
-
-words.forEach(word => {
-
-key =
-key.replace(
-normalizeProductName(word),
-""
-);
-
-});
-
-return key.slice(0,12);
+return normalizeProductName(name)
+.slice(0,12);
 
 }
 
@@ -393,15 +344,42 @@ store:"COVERCHORD",
 
 handle:product.handle,
 
-sizes:product.sizes,
-
-hit:true
+sizes:product.sizes
 
 });
 
 });
 
 return Object.values(grouped);
+
+}
+
+function buildSizeMatrix(item){
+
+const matrix = {};
+
+item.stores.forEach(store => {
+
+store.sizes.forEach(size => {
+
+if(!matrix[size.title]){
+
+matrix[size.title] = [];
+
+}
+
+matrix[size.title].push({
+
+store:store.store,
+available:size.available
+
+});
+
+});
+
+});
+
+return matrix;
 
 }
 
@@ -445,12 +423,6 @@ item.handle
 const sizeData =
 await sizeRes.json();
 
-const arkHit =
-await fetch(
-`./api/test?store=arknets&brand=${encodeURIComponent(item.title)}`
-)
-.then(r=>r.json());
-
 const inStock =
 sizeData.sizes.some(
 size => size.available
@@ -461,9 +433,6 @@ return {
 ...item,
 
 inStock,
-
-arkHit:
-arkHit.hasBrand,
 
 matchKey:
 createMatchKey(
@@ -508,28 +477,32 @@ product => product.inStock
 const html =
 products.map((item,index) => {
 
-const storesHtml =
-item.stores.map(store => {
+const matrix =
+buildSizeMatrix(item);
 
-const sizesHtml =
-store.sizes.map(size => {
+const sizeHtml =
+Object.entries(matrix)
+.map(([size,stores]) => {
+
+const rows =
+stores.map(store => {
 
 return `
 
-<div class="size">
+<div class="storeRow">
 
-<div>
-${size.title}
+<div class="storeName">
+${store.store}
 </div>
 
 <div class="${
-size.available
+store.available
 ? "ok"
-: "sold"
+: "ng"
 }">
 
 ${
-size.available
+store.available
 ? "○"
 : "×"
 }
@@ -544,45 +517,22 @@ size.available
 
 return `
 
-<div class="store">
+<div class="sizeBlock">
 
-<div class="storeTop">
+<div class="sizeTitle">
 
-<div class="storeName">
-
-${store.store}
+${size}
 
 </div>
 
-<div class="hit">
-
-HIT ○
-
-</div>
-
-</div>
-
-<div class="sizes">
-
-${sizesHtml}
-
-</div>
-
-<a
-class="link"
-href="https://coverchord.com/products/${store.handle}"
-target="_blank"
->
-
-商品を見る
-
-</a>
+${rows}
 
 </div>
 
 `;
 
-}).join("");
+})
+.join("");
 
 return `
 
@@ -624,18 +574,12 @@ ${item.title}
 
 </div>
 
-<div class="match">
-
-${item.matchKey}
-
-</div>
-
 <button
 class="toggle"
 onclick="toggleDetail(${index})"
 >
 
-STORE / SIZE ▼
+SIZE STOCK ▼
 
 </button>
 
@@ -644,45 +588,17 @@ id="detail-${index}"
 class="detail"
 >
 
-${storesHtml}
-
-<div class="store">
-
-<div class="storeTop">
-
-<div class="storeName">
-
-ARKnets
-
-</div>
-
-<div class="${
-item.arkHit
-? "hit"
-: "nohit"
-}">
-
-${
-item.arkHit
-? "HIT ○"
-: "NO HIT"
-}
-
-</div>
-
-</div>
+${sizeHtml}
 
 <a
 class="link"
-href="https://www.google.com/search?q=site:arknets.co.jp+${encodeURIComponent(item.title)}"
+href="https://www.google.com/search?q=${encodeURIComponent(item.title)}"
 target="_blank"
 >
 
-ARKnetsで検索
+他店舗も検索
 
 </a>
-
-</div>
 
 </div>
 
