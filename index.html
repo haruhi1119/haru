@@ -183,7 +183,7 @@ font-weight:700;
 
 .link{
 display:block;
-margin-top:10px;
+margin-top:12px;
 padding:12px;
 border-radius:12px;
 background:black;
@@ -371,9 +371,30 @@ matrix[size.title] = [];
 matrix[size.title].push({
 
 store:store.store,
+
 available:size.available
 
 });
+
+});
+
+});
+
+Object.keys(matrix).forEach(size => {
+
+matrix[size].push({
+
+store:"ARKnets",
+
+available:item.arkHit
+
+});
+
+matrix[size].push({
+
+store:"CIACURA",
+
+available:item.ciaHit
 
 });
 
@@ -423,6 +444,14 @@ item.handle
 const sizeData =
 await sizeRes.json();
 
+const arkRes =
+await fetch(
+`./api/test?store=arknets&brand=${encodeURIComponent(item.title)}`
+);
+
+const arkData =
+await arkRes.json();
+
 const inStock =
 sizeData.sizes.some(
 size => size.available
@@ -433,6 +462,11 @@ return {
 ...item,
 
 inStock,
+
+arkHit:
+arkData.hasBrand,
+
+ciaHit:true,
 
 matchKey:
 createMatchKey(
@@ -492,7 +526,9 @@ return `
 <div class="storeRow">
 
 <div class="storeName">
+
 ${store.store}
+
 </div>
 
 <div class="${
@@ -596,7 +632,7 @@ href="https://www.google.com/search?q=${encodeURIComponent(item.title)}"
 target="_blank"
 >
 
-他店舗も検索
+他店舗検索
 
 </a>
 
