@@ -310,6 +310,12 @@ return text
 
 }
 
+function buildArkSearchUrl(title){
+
+return `https://www.arknets.co.jp/search/?q=${encodeURIComponent(title)}`;
+
+}
+
 function buildSizeMatrix(item){
 
 const matrix = {};
@@ -364,10 +370,7 @@ store:"ARKnets",
 available:item.arkExists,
 
 url:
-`https://www.google.com/search?q=${encodeURIComponent(
-"site:arknets.co.jp " +
-item.title
-)}`
+buildArkSearchUrl(item.title)
 
 });
 
