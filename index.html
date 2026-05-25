@@ -310,13 +310,6 @@ return text
 
 }
 
-function createMatchKey(name){
-
-return normalizeText(name)
-.slice(0,12);
-
-}
-
 function buildSizeMatrix(item){
 
 const matrix = {};
@@ -340,14 +333,9 @@ item.handle
 const diverseMatch =
 item.diverse?.variants?.find(v => {
 
-const coverSize =
-normalizeText(size.title);
-
-const diverseSize =
-normalizeText(v.title);
-
-return diverseSize.includes(
-coverSize
+return normalizeText(v.title)
+.includes(
+normalizeText(size.title)
 );
 
 });
@@ -366,6 +354,20 @@ item.diverse
 ? "https://diverse-web.com/products/" +
 item.diverse.handle
 : null
+
+});
+
+matrix[size.title].push({
+
+store:"ARKnets",
+
+available:item.arkExists,
+
+url:
+`https://www.google.com/search?q=${encodeURIComponent(
+"site:arknets.co.jp " +
+item.title
+)}`
 
 });
 
@@ -399,6 +401,14 @@ await fetch(
 const data =
 await res.json();
 
+const diverseRes =
+await fetch(
+`./api/test?store=diverse&brand=${brand}`
+);
+
+const diverseData =
+await diverseRes.json();
+
 const products =
 await Promise.all(
 
@@ -415,27 +425,25 @@ item.handle
 const sizeData =
 await sizeRes.json();
 
-const diverseRes =
-await fetch(
-`./api/test?store=diverse&brand=${brand}`
-);
-
-const diverseData =
-await diverseRes.json();
-
 const diverseMatch =
 diverseData.products.find(p => {
 
-return (
-normalizeText(p.title)
+return normalizeText(p.title)
 .includes(
 normalizeText(
 item.title
 ).slice(0,8)
-)
 );
 
 });
+
+const arkRes =
+await fetch(
+`./api/test?store=arknets&brand=${encodeURIComponent(item.title)}`
+);
+
+const arkData =
+await arkRes.json();
 
 const inStock =
 sizeData.sizes.some(
@@ -452,7 +460,10 @@ coverSizes:
 sizeData.sizes,
 
 diverse:
-diverseMatch
+diverseMatch,
+
+arkExists:
+arkData.hasBrand
 
 };
 
@@ -538,7 +549,7 @@ href="${store.url}"
 target="_blank"
 >
 
-商品を見る
+${store.store}で見る
 
 </a>
 
