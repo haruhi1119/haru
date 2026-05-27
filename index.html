@@ -314,7 +314,13 @@ return text
 
 function buildArkSearchUrl(){
 
-return `https://www.arknets.co.jp`;
+return `https://www.arknets.co.jp/goods_list/?keyword=${encodeURIComponent(currentBrand)}`;
+
+}
+
+function buildCiacuraSearchUrl(title){
+
+return `https://shop.ciacura.jp/search?q=${encodeURIComponent(title)}`;
 
 }
 
@@ -409,6 +415,8 @@ available:false,
 
 url:
 getIndexedStoreUrl(item,"ciacura")
+||
+buildCiacuraSearchUrl(item.title)
 
 });
 
