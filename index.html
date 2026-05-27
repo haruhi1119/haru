@@ -275,6 +275,7 @@ Loading...
 <script>
 
 let allProducts = [];
+let currentBrand = "comoli";
 
 function normalizeBrand(input){
 
@@ -310,9 +311,9 @@ return text
 
 }
 
-function buildArkSearchUrl(title){
+function buildArkSearchUrl(){
 
-return `https://www.arknets.co.jp/goods_list/?keyword=${encodeURIComponent(title)}`;
+return `https://www.arknets.co.jp/goods_list/?keyword=${encodeURIComponent(currentBrand)}`;
 
 }
 
@@ -370,7 +371,7 @@ store:"ARKnets",
 available:item.arkExists,
 
 url:
-buildArkSearchUrl(item.title)
+buildArkSearchUrl()
 
 });
 
@@ -381,6 +382,8 @@ return matrix;
 }
 
 async function loadProducts(brand){
+
+currentBrand = brand;
 
 document
 .getElementById("products")
@@ -442,7 +445,7 @@ item.title
 
 const arkRes =
 await fetch(
-`./api/test?store=arknets&brand=${encodeURIComponent(item.title)}`
+`./api/test?store=arknets&brand=${brand}`
 );
 
 const arkData =
