@@ -16,24 +16,7 @@ export default async function handler(req, res) {
 
     const html = await response.text();
 
-    const match =
-      html.match(/\/goods\/detail\/[A-Z0-9]+/);
-
-    if (!match) {
-
-      return res.status(200).json({
-        success: false,
-        url: null
-      });
-
-    }
-
-    return res.status(200).json({
-      success: true,
-      url:
-        "https://www.arknets.co.jp" +
-        match[0]
-    });
+    return res.status(200).send(html);
 
   } catch (error) {
 
