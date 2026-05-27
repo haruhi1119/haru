@@ -4,12 +4,10 @@ export default async function handler(req, res) {
 
   try {
 
-    const searchUrl =
-      `https://www.google.com/search?q=${encodeURIComponent(
-        `site:arknets.co.jp ${keyword}`
-      )}`;
+    const url =
+      `https://www.arknets.co.jp/goods_list/?keyword=${encodeURIComponent(keyword)}`;
 
-    const response = await fetch(searchUrl, {
+    const response = await fetch(url, {
       headers: {
         "User-Agent":
           "Mozilla/5.0"
@@ -19,7 +17,7 @@ export default async function handler(req, res) {
     const html = await response.text();
 
     const match =
-      html.match(/https:\/\/www\.arknets\.co\.jp\/goods\/detail\/[^\"]+/);
+      html.match(/\/goods\/detail\/[A-Z0-9]+/);
 
     if (!match) {
 
@@ -32,7 +30,9 @@ export default async function handler(req, res) {
 
     return res.status(200).json({
       success: true,
-      url: match[0]
+      url:
+        "https://www.arknets.co.jp" +
+        match[0]
     });
 
   } catch (error) {
