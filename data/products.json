@@ -1,0 +1,37 @@
+{
+  "comoli": [
+    {
+      "title": "オックスプルオーバー",
+      "stores": {
+        "arknets": {
+          "url": "https://www.arknets.co.jp"
+        },
+        "ciacura": {
+          "url": "https://shop.ciacura.jp"
+        }
+      }
+    },
+    {
+      "title": "パイルジップパーカ",
+      "stores": {
+        "arknets": {
+          "url": "https://www.arknets.co.jp"
+        },
+        "ciacura": {
+          "url": "https://shop.ciacura.jp"
+        }
+      }
+    },
+    {
+      "title": "サープラスTシャツ",
+      "stores": {
+        "arknets": {
+          "url": "https://www.arknets.co.jp"
+        },
+        "ciacura": {
+          "url": "https://shop.ciacura.jp"
+        }
+      }
+    }
+  ]
+}
