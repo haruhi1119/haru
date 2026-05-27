@@ -275,6 +275,7 @@ Loading...
 <script>
 
 let allProducts = [];
+let productDB = {};
 let currentBrand = "comoli";
 
 function normalizeBrand(input){
@@ -313,7 +314,30 @@ return text
 
 function buildArkSearchUrl(){
 
-return `https://www.arknets.co.jp/goods_list/?keyword=${encodeURIComponent(currentBrand)}`;
+return `https://www.arknets.co.jp`;
+
+}
+
+function getIndexedStoreUrl(item, storeName){
+
+const brandData =
+productDB[currentBrand] || [];
+
+const matched =
+brandData.find(product => {
+
+return normalizeText(product.title)
+.includes(
+normalizeText(item.title).slice(0,6)
+);
+
+});
+
+if(!matched){
+return null;
+}
+
+return matched.stores?.[storeName]?.url || null;
 
 }
 
@@ -371,7 +395,20 @@ store:"ARKnets",
 available:item.arkExists,
 
 url:
+getIndexedStoreUrl(item,"arknets")
+||
 buildArkSearchUrl()
+
+});
+
+matrix[size.title].push({
+
+store:"CIACURA",
+
+available:false,
+
+url:
+getIndexedStoreUrl(item,"ciacura")
 
 });
 
@@ -443,14 +480,6 @@ item.title
 
 });
 
-const arkRes =
-await fetch(
-`./api/test?store=arknets&brand=${brand}`
-);
-
-const arkData =
-await arkRes.json();
-
 const inStock =
 sizeData.sizes.some(
 size => size.available
@@ -468,8 +497,7 @@ sizeData.sizes,
 diverse:
 diverseMatch,
 
-arkExists:
-arkData.hasBrand
+arkExists:true
 
 };
 
@@ -699,7 +727,19 @@ renderProducts();
 
 });
 
+async function initialize(){
+
+const dbRes =
+await fetch("./data/products.json");
+
+productDB =
+await dbRes.json();
+
 loadProducts("comoli");
+
+}
+
+initialize();
 
 </script>
 
