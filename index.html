@@ -10,7 +10,8 @@
 body{margin:0;background:#f5f5f5;font-family:-apple-system,BlinkMacSystemFont,sans-serif;color:#111}
 header{position:sticky;top:0;z-index:100;background:white;padding:34px 18px 20px;border-bottom:1px solid #eee}
 .logo{text-align:center;font-size:42px;font-weight:900;letter-spacing:4px;margin-bottom:18px}
-.search{width:100%;border:none;background:#f3f3f3;border-radius:16px;padding:18px;font-size:17px;outline:none}
+.search,.sizeFilter{width:100%;border:none;background:#f3f3f3;border-radius:16px;padding:16px;font-size:16px;outline:none}
+.sizeFilter{margin-top:10px}
 .filters{margin-top:14px;font-size:13px}
 .helper{margin-top:12px;text-align:center;font-size:11px;color:#999}
 .container{padding:14px;display:grid;grid-template-columns:1fr 1fr;gap:14px}
@@ -32,9 +33,10 @@ header{position:sticky;top:0;z-index:100;background:white;padding:34px 18px 20px
 .storeName{font-weight:800}
 .ok{color:green;font-weight:900}
 .ng{color:#aaa;font-weight:700}
-.check{color:#555;font-weight:800}
 .miniLink{background:black;color:white;text-decoration:none;border-radius:8px;padding:7px 9px;font-size:11px;font-weight:800;white-space:nowrap}
-.loading{grid-column:1/3;padding:120px 20px;text-align:center}
+.checkBlock{border:1px solid #eee;border-radius:16px;padding:12px;margin-top:12px;background:white}
+.checkTitle{font-size:13px;font-weight:900;margin-bottom:8px}
+.loading,.empty{grid-column:1/3;padding:120px 20px;text-align:center}
 .spinner{width:44px;height:44px;border:4px solid #ddd;border-top:4px solid black;border-radius:50%;margin:0 auto 16px;animation:spin 1s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 </style>
@@ -46,6 +48,19 @@ header{position:sticky;top:0;z-index:100;background:white;padding:34px 18px 20px
 <div class="logo">BRAND STOCK</div>
 
 <input id="search" class="search" placeholder="ブランド検索" value="comoli">
+
+<select id="sizeFilter" class="sizeFilter">
+<option value="">すべてのサイズ</option>
+<option value="1">SIZE 1</option>
+<option value="2">SIZE 2</option>
+<option value="3">SIZE 3</option>
+<option value="4">SIZE 4</option>
+<option value="5">SIZE 5</option>
+<option value="S">SIZE S</option>
+<option value="M">SIZE M</option>
+<option value="L">SIZE L</option>
+<option value="XL">SIZE XL</option>
+</select>
 
 <div class="filters">
 <label>
@@ -97,17 +112,11 @@ function normalizeText(text){
 
 function getIndexedStoreUrl(item, storeName){
   const brandData = productDB[currentBrand] || [];
-
   const matched = brandData.find(product => {
     return normalizeText(product.title)
       .includes(normalizeText(item.title).slice(0,6));
   });
-
-  if(!matched){
-    return null;
-  }
-
-  return matched.stores?.[storeName]?.url || null;
+  return matched?.stores?.[storeName]?.url || null;
 }
 
 function buildArkUrl(item){
@@ -119,50 +128,60 @@ function buildCiacuraUrl(item){
     || `https://shop.ciacura.jp/search?q=${encodeURIComponent(item.title)}`;
 }
 
+function sizeMatches(sizeTitle, selected){
+  if(!selected) return true;
+  return normalizeText(sizeTitle) === normalizeText(selected);
+}
+
 function buildSizeMatrix(item){
+  const selectedSize = document.getElementById("sizeFilter").value;
   const matrix = {};
 
-  item.coverSizes.forEach(size => {
-    matrix[size.title] = [];
+  item.coverSizes
+    .filter(size => sizeMatches(size.title, selectedSize))
+    .forEach(size => {
+      matrix[size.title] = [];
 
-    matrix[size.title].push({
-      store:"COVERCHORD",
-      status:size.available ? "○" : "×",
-      className:size.available ? "ok" : "ng",
-      url:"https://coverchord.com/products/" + item.handle,
-      linkText:"見る"
-    });
+      matrix[size.title].push({
+        store:"COVERCHORD",
+        status:size.available ? "○" : "×",
+        className:size.available ? "ok" : "ng",
+        url:"https://coverchord.com/products/" + item.handle,
+        linkText:"見る"
+      });
 
-    const diverseMatch = item.diverse?.variants?.find(v => {
-      return normalizeText(v.title).includes(normalizeText(size.title));
-    });
+      const diverseMatch = item.diverse?.variants?.find(v => {
+        return normalizeText(v.title).includes(normalizeText(size.title));
+      });
 
-    matrix[size.title].push({
-      store:"DIVERSE",
-      status:diverseMatch ? (diverseMatch.available ? "○" : "×") : "×",
-      className:diverseMatch?.available ? "ok" : "ng",
-      url:item.diverse ? "https://diverse-web.com/products/" + item.diverse.handle : null,
-      linkText:"見る"
+      matrix[size.title].push({
+        store:"DIVERSE",
+        status:diverseMatch ? (diverseMatch.available ? "○" : "×") : "×",
+        className:diverseMatch?.available ? "ok" : "ng",
+        url:item.diverse ? "https://diverse-web.com/products/" + item.diverse.handle : null,
+        linkText:"見る"
+      });
     });
-
-    matrix[size.title].push({
-      store:"ARKnets",
-      status:"確認",
-      className:"check",
-      url:buildArkUrl(item),
-      linkText:"確認"
-    });
-
-    matrix[size.title].push({
-      store:"CIACURA",
-      status:"確認",
-      className:"check",
-      url:buildCiacuraUrl(item),
-      linkText:"確認"
-    });
-  });
 
   return matrix;
+}
+
+function productHasSelectedSizeStock(product){
+  const selectedSize = document.getElementById("sizeFilter").value;
+
+  if(!selectedSize){
+    return product.inStock;
+  }
+
+  const coverHit = product.coverSizes.some(size => {
+    return sizeMatches(size.title, selectedSize) && size.available;
+  });
+
+  const diverseHit = product.diverse?.variants?.some(v => {
+    return sizeMatches(v.title, selectedSize) && v.available;
+  });
+
+  return coverHit || diverseHit;
 }
 
 async function loadProducts(brand){
@@ -211,15 +230,20 @@ async function loadProducts(brand){
 
 function renderProducts(){
   const stockOnly = document.getElementById("stockOnly").checked;
+  const selectedSize = document.getElementById("sizeFilter").value;
 
   let products = allProducts;
 
   if(stockOnly){
-    products = products.filter(product => product.inStock);
+    products = products.filter(product => productHasSelectedSizeStock(product));
   }
 
   const html = products.map((item,index) => {
     const matrix = buildSizeMatrix(item);
+
+    if(selectedSize && Object.keys(matrix).length === 0){
+      return "";
+    }
 
     const sizeHtml = Object.entries(matrix).map(([size,stores]) => {
       const rows = stores.map(store => {
@@ -244,6 +268,24 @@ function renderProducts(){
       `;
     }).join("");
 
+    const checkLinks = `
+      <div class="checkBlock">
+        <div class="checkTitle">その他取扱店を確認</div>
+
+        <div class="storeRow">
+          <div class="storeName">ARKnets</div>
+          <div class="ng">確認</div>
+          <a class="miniLink" href="${buildArkUrl(item)}" target="_blank">開く</a>
+        </div>
+
+        <div class="storeRow">
+          <div class="storeName">CIACURA</div>
+          <div class="ng">確認</div>
+          <a class="miniLink" href="${buildCiacuraUrl(item)}" target="_blank">開く</a>
+        </div>
+      </div>
+    `;
+
     return `
       <div class="card">
         <div class="imageWrap">
@@ -266,13 +308,15 @@ function renderProducts(){
 
           <div id="detail-${index}" class="detail">
             ${sizeHtml}
+            ${checkLinks}
           </div>
         </div>
       </div>
     `;
   }).join("");
 
-  document.getElementById("products").innerHTML = html;
+  document.getElementById("products").innerHTML =
+    html || `<div class="empty">該当商品がありません</div>`;
 }
 
 function toggleDetail(index){
@@ -287,9 +331,8 @@ document.getElementById("search").addEventListener("focus", e => {
   e.target.select();
 });
 
-document.getElementById("stockOnly").addEventListener("change", () => {
-  renderProducts();
-});
+document.getElementById("stockOnly").addEventListener("change", renderProducts);
+document.getElementById("sizeFilter").addEventListener("change", renderProducts);
 
 async function initialize(){
   const dbRes = await fetch("./data/products.json");
